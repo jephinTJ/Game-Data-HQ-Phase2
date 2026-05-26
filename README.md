@@ -1,1 +1,1 @@
-# [Versus-Dashboard](https://jephintj.github.io/Versus-Dashboard/)
+# [HQ Dashboard Live](https://jephintj.github.io/Game-Data-HQ/)
