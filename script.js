@@ -1,88 +1,104 @@
 let selectionSlots = [
-  { game: null, version: null, day: "D0", versionPage: 0 },
-  { game: null, version: null, day: "D0", versionPage: 0 },
+  {
+    game: null,
+    gameShortName: null,
+    platform: null,
+    version: null,
+    day: null,
+    versionPage: 0,
+  },
+  {
+    game: null,
+    gameShortName: null,
+    platform: null,
+    version: null,
+    day: null,
+    versionPage: 0,
+  },
 ];
+
 const STUDIO_GAMES = {
-  "Detective IQ 1": {
-    shortName: "DIQ 1",
-    package: "com.myl.detective.iq1",
-    tags: [
-      "Puzzle",
-      "Brain teaser",
-      "Casual",
-      "Single player",
-      "Stylised",
-      "Offline",
-    ],
-    icon: "https://play-lh.googleusercontent.com/NwByB-HJl5P0AJTb1Pe9xsx2UVpbsG-9ro1hiIYKW4EqsPoWwGszLCsS9Ry5WdG5dN1G=w240-h480-rw",
-    platforms: ["android"],
-  },
-  "Detective IQ 1 ios": {
-    shortName: "DIQ 1",
-    package: "com.myl.detective.iq1.ios",
-    tags: ["Puzzle"],
-    icon: "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/39/2e/7a/392e7af1-337a-0ec7-8e21-94c77c8d50a2/AppIcon-1x_U007emarketing-0-8-0-85-220-0.png/200x200ia-75.webp",
-    platforms: ["ios"],
-  },
-  "Detective IQ 2": {
-    shortName: "DIQ 2",
-    package: "com.myl.detective.iq2",
-    tags: [
-      "Puzzle",
-      "Brain teaser",
-      "Casual",
-      "Single player",
-      "Stylised",
-      "Funny",
-      "Offline",
-    ],
-    icon: "https://play-lh.googleusercontent.com/8CXT3yJWEE1kfIxDEN5xGSaB3gUiCxs3eeUg-4JwXNQE0G8oklwmxJxTrNWsg3ektidX=w240-h480-rw",
-    platforms: ["android"],
-  },
-  "Detective IQ 2 ios": {
-    shortName: "DIQ 2",
-    package: "com.myl.detective.iq2.ios",
-    tags: ["Puzzle"],
-    icon: "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/8f/9b/3c/8f9b3ccc-d6df-8b7b-f05b-57af4e461954/Placeholder.mill/200x200bb-75.webp",
-    platforms: ["ios"],
-  },
-  "Detective IQ 3": {
-    shortName: "DIQ 3",
-    package: "com.myl.detective.iq3",
-    tags: ["Puzzle"],
-    icon: "https://play-lh.googleusercontent.com/FHK6WetkmM6p18210H2nMS1G4CGwyG9KpnJSLPXhaztPt1hTH7pAtzJdwhEWFRiqUf8=w240-h480-rw",
-    platforms: ["android"],
-  },
-  "Ghost IQ": {
-    shortName: "GIQ",
-    package: "com.myl.ghost.iq",
-    tags: ["Puzzle"],
-    icon: "https://play-lh.googleusercontent.com/R9ccBYwNhhayk9Rb81wM6K64I1snF8UqSDQBf8m0Kjiq2a0KQ13frTd8vt2ZXzPrSFSEIhuxrna12_XTXoxG=w240-h480-rw",
-    platforms: ["android"],
-  },
+  // "Detective IQ 1": {
+  //   shortName: "DIQ 1",
+  //   package: "com.myl.detective.iq1",
+  //   tags: [
+  //     "Puzzle",
+  //     "Brain teaser",
+  //     "Casual",
+  //     "Single player",
+  //     "Stylised",
+  //     "Offline",
+  //   ],
+  //   icon: "https://play-lh.googleusercontent.com/NwByB-HJl5P0AJTb1Pe9xsx2UVpbsG-9ro1hiIYKW4EqsPoWwGszLCsS9Ry5WdG5dN1G=w240-h480-rw",
+  //   platforms: ["android"],
+  // },
+  // "Detective IQ 1 ios": {
+  //   shortName: "DIQ 1",
+  //   package: "com.myl.detective.iq1.ios",
+  //   tags: ["Puzzle"],
+  //   icon: "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/39/2e/7a/392e7af1-337a-0ec7-8e21-94c77c8d50a2/AppIcon-1x_U007emarketing-0-8-0-85-220-0.png/200x200ia-75.webp",
+  //   platforms: ["ios"],
+  // },
+  // "Detective IQ 2": {
+  //   shortName: "DIQ 2",
+  //   package: "com.myl.detective.iq2",
+  //   tags: [
+  //     "Puzzle",
+  //     "Brain teaser",
+  //     "Casual",
+  //     "Single player",
+  //     "Stylised",
+  //     "Funny",
+  //     "Offline",
+  //   ],
+  //   icon: "https://play-lh.googleusercontent.com/8CXT3yJWEE1kfIxDEN5xGSaB3gUiCxs3eeUg-4JwXNQE0G8oklwmxJxTrNWsg3ektidX=w240-h480-rw",
+  //   platforms: ["android"],
+  // },
+  // "Detective IQ 2 ios": {
+  //   shortName: "DIQ 2",
+  //   package: "com.myl.detective.iq2.ios",
+  //   tags: ["Puzzle"],
+  //   icon: "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/8f/9b/3c/8f9b3ccc-d6df-8b7b-f05b-57af4e461954/Placeholder.mill/200x200bb-75.webp",
+  //   platforms: ["ios"],
+  // },
+  // "Detective IQ 3": {
+  //   shortName: "DIQ 3",
+  //   package: "com.myl.detective.iq3",
+  //   tags: ["Puzzle"],
+  //   icon: "https://play-lh.googleusercontent.com/FHK6WetkmM6p18210H2nMS1G4CGwyG9KpnJSLPXhaztPt1hTH7pAtzJdwhEWFRiqUf8=w240-h480-rw",
+  //   platforms: ["android"],
+  // },
+  // "Ghost IQ": {
+  //   shortName: "GIQ",
+  //   package: "com.myl.ghost.iq",
+  //   tags: ["Puzzle"],
+  //   icon: "https://play-lh.googleusercontent.com/R9ccBYwNhhayk9Rb81wM6K64I1snF8UqSDQBf8m0Kjiq2a0KQ13frTd8vt2ZXzPrSFSEIhuxrna12_XTXoxG=w240-h480-rw",
+  //   platforms: ["android"],
+  // },
 };
+
 // Hardcoded Test Data for DIQ 3
 const MOCK_DATABASE = {
-  "Detective IQ 3_56_D0": [
-    15000, 58.0, 30.5, 20.0, 13.0, 7.0, 4.0, 21.0, 8.0, 2.0, 0.5, 0.1, 8.5,
-    12500, 65.0, 35.0, 23.0, 15.0, 8.0, 4.5, 83.33, 240.0, 920.0, 25.4, 14.2,
-    5.1, 42.0, 125,
-  ],
-  "Detective IQ 3_57_D0": [
-    18000, 62.15, 35.4, 22.8, 15.2, 9.1, 5.3, 24.5, 10.2, 4.1, 1.2, 0.25, 9.45,
-    15500, 68.3, 38.2, 25.1, 18.4, 10.2, 6.15, 86.11, 260.5, 1050.2, 28.15,
-    16.4, 4.25, 38.1, 140,
-  ],
-  "Detective IQ 2_108_D0": [
-    22000, 55.2, 28.4, 18.15, 11.0, 5.2, 2.45, 18.6, 6.1, 1.55, 0.35, 0.05,
-    7.82, 18500, 60.15, 31.4, 20.25, 12.1, 6.4, 3.15, 84.09, 210.3, 810.5, 22.1,
-    12.35, 7.15, 48.2, 110,
-  ],
-  "Detective IQ 2_120_D0": [
-    25000, 65.45, 40.1, 28.3, 20.15, 12.4, 8.2, 30.15, 15.4, 8.25, 3.1, 1.15,
-    11.55, 22000, 75.2, 45.15, 32.4, 22.15, 14.3, 9.1, 88.0, 305.8, 1220.4,
-    32.5, 18.1, 3.25, 30.15, 165,
-  ],
+  // "Detective IQ 3_56_D0": [
+  //   15000, 58.0, 30.5, 20.0, 13.0, 7.0, 4.0, 21.0, 8.0, 2.0, 0.5, 0.1, 8.5,
+  //   12500, 65.0, 35.0, 23.0, 15.0, 8.0, 4.5, 83.33, 240.0, 920.0, 25.4, 14.2,
+  //   5.1, 42.0, 125,
+  // ],
+  // "Detective IQ 3_57_D0": [
+  //   18000, 62.15, 35.4, 22.8, 15.2, 9.1, 5.3, 24.5, 10.2, 4.1, 1.2, 0.25, 9.45,
+  //   15500, 68.3, 38.2, 25.1, 18.4, 10.2, 6.15, 86.11, 260.5, 1050.2, 28.15,
+  //   16.4, 4.25, 38.1, 140,
+  // ],
+  // "Detective IQ 2_108_D0": [
+  //   22000, 55.2, 28.4, 18.15, 11.0, 5.2, 2.45, 18.6, 6.1, 1.55, 0.35, 0.05,
+  //   7.82, 18500, 60.15, 31.4, 20.25, 12.1, 6.4, 3.15, 84.09, 210.3, 810.5, 22.1,
+  //   12.35, 7.15, 48.2, 110,
+  // ],
+  // "Detective IQ 2_120_D0": [
+  //   25000, 65.45, 40.1, 28.3, 20.15, 12.4, 8.2, 30.15, 15.4, 8.25, 3.1, 1.15,
+  //   11.55, 22000, 75.2, 45.15, 32.4, 22.15, 14.3, 9.1, 88.0, 305.8, 1220.4,
+  //   32.5, 18.1, 3.25, 30.15, 165,
+  // ],
 };
 
 let metadata = {
@@ -95,7 +111,9 @@ let metadata = {
           ? ["56", "57"]
           : game === "Detective IQ 2"
             ? ["108", "120"]
-            : [],
+            : game === "Detective IQ 1"
+              ? ["108", "120"]
+              : [],
     }),
     {},
   ),
@@ -107,12 +125,33 @@ let retentionChartMode = "install";
 let performanceMode = "impact"; // 'impact' or 'efficiency'
 let lastData = null;
 let lastCompLayers = null;
-let activeInjection = { game: null, version: null, day: null };
-let baseSelection = { game: null, version: null, day: null };
-let compSelection = { game: null, version: null, day: null };
-let currentTargetContext = "inject";
+let activeInjection = {
+  game: null,
+  gameShortName: null,
+  platform: null,
+  version: null,
+  day: null,
+};
 
-function setDashboardMode(mode) {
+let baseSelection = {
+  game: null,
+  gameShortName: null,
+  platform: null,
+  version: null,
+  day: null,
+};
+let compSelection = {
+  game: null,
+  gameShortName: null,
+  platform: null,
+  version: null,
+  day: null,
+};
+let currentTargetContext = "inject";
+let BENCHMARK_MAP = {};
+
+function setDashboardMode(mode, isInstant = false) {
+  localStorage.setItem("dashboardMode", mode);
   const isCompare = mode === "compare";
   dashboardMode = mode;
 
@@ -126,7 +165,36 @@ function setDashboardMode(mode) {
     gameHeader: document.getElementById("game-header"),
   };
 
-  // 1. Toggle Static UI Elements (Instant or CSS Transitioned)
+  if (isInstant) {
+    els.titlePro.style.transition = "none";
+    els.titlePro.classList.toggle("active-pro", isCompare);
+
+    if (isCompare) {
+      els.singleNav.classList.add("hidden");
+      els.singleNav.classList.remove("flex");
+      els.compareNav.classList.remove("hidden");
+      els.compareNav.classList.add("flex");
+      els.singleActions.classList.add("hidden");
+      if (els.gameHeader) els.gameHeader.classList.add("hidden");
+    } else {
+      els.singleNav.classList.remove("hidden");
+      els.singleNav.classList.add("flex");
+      els.compareNav.classList.add("hidden");
+      els.compareNav.classList.remove("flex");
+      els.singleActions.classList.remove("hidden");
+      els.singleActions.classList.add("flex");
+    }
+
+    els.singleBtn.className = `px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${!isCompare ? "bg-white shadow-sm text-blue-600" : "text-slate-500 hover:text-slate-700"}`;
+    els.compareBtn.className = `px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${isCompare ? "bg-white shadow-sm text-blue-600" : "text-slate-500 hover:text-slate-700"}`;
+
+    if (isCompare) renderCompSlots();
+    refreshDashboard2();
+    return;
+  }
+
+  // 1. Toggle Static UI Elements
+  els.titlePro.style.transition = ""; // Restore transition
   els.titlePro.classList.toggle("active-pro", isCompare);
   if (isCompare) els.gameHeader?.classList.add("hidden");
   else if (baseSelection.game) els.gameHeader?.classList.remove("hidden");
@@ -139,14 +207,12 @@ function setDashboardMode(mode) {
   const showEl = isCompare ? els.compareNav : els.singleNav;
   const hideEl = isCompare ? els.singleNav : els.compareNav;
 
-  // Start exit animation without removing layout classes to keep center alignment stable
   hideEl.classList.remove("nav-control-fade");
   hideEl.classList.add("nav-control-exit");
 
   if (isCompare) els.singleActions?.classList.add("nav-control-exit");
 
   setTimeout(() => {
-    // Clean up hidden elements and remove layout classes only AFTER animation
     hideEl.classList.add("hidden");
     hideEl.classList.remove("nav-control-exit", "flex");
 
@@ -162,13 +228,12 @@ function setDashboardMode(mode) {
       els.singleActions?.classList.add("flex", "nav-control-fade");
     }
 
-    // Show new element
     showEl.classList.remove("hidden", "nav-control-exit");
     showEl.classList.add("flex", "nav-control-fade");
 
     if (isCompare) renderCompSlots();
-    refreshDashboard();
-  }, 250); // Matches the 0.25s CSS animation duration exactly
+    refreshDashboard2();
+  }, 250);
 }
 
 function renderCompSlots() {
@@ -179,8 +244,16 @@ function renderCompSlots() {
     .map((slot, i) => {
       const gameData = slot.game ? STUDIO_GAMES[slot.game] : null;
       const cleanGame = slot.game
-        ? gameData.shortName || slot.game.replace(/\s*ios\s*$/i, "")
+        ? slot.game.replace(/\s*ios\s*$/i, "")
         : "Select Game";
+      const isAndroid =
+        gameData?.platforms?.includes("android") ||
+        gameData?.platform === "android";
+      const pIcon = slot.game
+        ? isAndroid
+          ? '<i class="fab fa-android text-emerald-500 text-[11px]"></i>'
+          : '<i class="fab fa-apple text-slate-400 text-[11px]"></i>'
+        : "";
       const slotLabel = String.fromCharCode(65 + i);
 
       return `
@@ -188,36 +261,37 @@ function renderCompSlots() {
         <div class="flex items-center gap-6">
           <div class="w-10 h-10 rounded-full border-2 border-slate-100 flex items-center justify-center text-xs font-black text-slate-400 shrink-0 bg-white">${slotLabel}</div>
           <div class="flex-1 flex items-center gap-3">
-            <div class="flex-1">
-              <button onclick="toggleSlotDropdown('GAME', ${i}, 'sd-g-${i}')" class="w-full flex items-center gap-3 bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-blue-400 transition-all shadow-sm">
-                ${slot.game ? `<img src="${gameData.icon}" class="w-6 h-6 rounded-lg object-cover border border-slate-100" />` : ""}
-                <div class="text-left">
-                  <p class="text-[9px] font-extrabold text-slate-400 uppercase tracking-tighter leading-none mb-0.5">Game Switch</p>
-                  <div class="flex items-center gap-2">
-                    <span class="text-xs font-bold text-slate-700">${cleanGame}</span>
-                    <i class="fas fa-chevron-down text-[10px] text-slate-400"></i>
+            <div class="flex-[1.25]">
+              <button onclick="toggleSlotDropdown('GAME', ${i}, 'sd-g-${i}', this)" class="w-full flex items-center gap-3 bg-white border border-slate-200 px-4 py-2.5 rounded-xl hover:border-blue-400 transition-all shadow-sm">
+                ${slot.game ? `<img src="${gameData.icon}" class="w-7 h-7 rounded-lg object-cover border border-slate-100 shrink-0" />` : ""}
+                <div class="text-left flex-1 min-w-0">
+                  <p class="text-[9px] font-extrabold text-slate-500 uppercase tracking-tighter leading-none mb-1">Game Switch</p>
+                  <div class="flex items-center gap-1.5 w-full">
+                    <span class="text-xs font-bold text-slate-700 tracking-tight truncate">${cleanGame}</span>
+                    ${pIcon ? `<span class="shrink-0 flex items-center">${pIcon}</span>` : ""}
+                    <i class="fas fa-chevron-down text-[10px] text-slate-400 shrink-0 ml-auto"></i>
                   </div>
                 </div>
               </button>
             </div>
             <div class="flex-1">
-              <button onclick="toggleSlotDropdown('VERSION', ${i}, 'sd-v-${i}')" ${!slot.game ? "disabled" : ""} class="w-full flex items-center gap-3 bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-blue-400 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
-                <div class="text-left">
-                  <p class="text-[9px] font-extrabold text-slate-400 uppercase tracking-tighter leading-none mb-0.5">Active Version</p>
-                  <div class="flex items-center gap-2">
-                    <span class="text-xs font-bold ${slot.version ? "text-blue-600" : "text-slate-700"}">${slot.version || "None Selected"}</span>
-                    <i class="fas fa-chevron-down text-[10px] text-slate-400"></i>
+              <button onclick="toggleSlotDropdown('VERSION', ${i}, 'sd-v-${i}', this)" ${!slot.game ? "disabled" : ""} class="w-full flex items-center gap-3 bg-white border border-slate-200 px-4 py-2.5 rounded-xl hover:border-blue-400 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                <div class="text-left flex-1 min-w-0">
+                  <p class="text-[9px] font-extrabold text-slate-500 uppercase tracking-tighter leading-none mb-1">Active Version</p>
+                  <div class="flex items-center gap-1.5 w-full">
+                    <span id="slot-v-text-${i}" class="text-xs font-bold tracking-tight truncate text-slate-700 flex items-center gap-1.5">${slot.version || "None Selected"} ${slot.version ? getBenchmarkTagsHTML(slot.game, slot.version).replace("ml-auto", "") : ""}</span>
+                    <i class="fas fa-chevron-down text-[10px] text-slate-400 shrink-0 ml-auto"></i>
                   </div>
                 </div>
               </button>
             </div>
             <div class="flex-1">
-              <button onclick="toggleSlotDropdown('DAY', ${i}, 'sd-d-${i}')" class="w-full flex items-center gap-3 bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-blue-400 transition-all shadow-sm">
-                <div class="text-left">
-                  <p class="text-[9px] font-extrabold text-slate-400 uppercase tracking-tighter leading-none mb-0.5">Active Day</p>
-                  <div class="flex items-center gap-2">
-                    <span class="text-xs font-bold text-slate-700">${slot.day || "Day 0"}</span>
-                    <i class="fas fa-chevron-down text-[10px] text-slate-400"></i>
+              <button onclick="toggleSlotDropdown('DAY', ${i}, 'sd-d-${i}', this)" ${!slot.version ? "disabled" : ""} class="w-full flex items-center gap-3 bg-white border border-slate-200 px-4 py-2.5 rounded-xl hover:border-blue-400 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                <div class="text-left flex-1 min-w-0">
+                  <p class="text-[9px] font-black text-slate-500 uppercase tracking-wider leading-none mb-1">Target Context</p>
+                  <div class="flex items-center gap-1.5 w-full">
+                    <span class="text-xs font-bold tracking-tight text-slate-700 truncate">${slot.day ? slot.day.replace("D", "Day ") : "Select Day"}</span>
+                    <i class="fas fa-chevron-down text-[10px] text-slate-400 shrink-0 ml-auto"></i>
                   </div>
                 </div>
               </button>
@@ -233,7 +307,9 @@ function renderCompSlots() {
     })
     .join("");
 
-  const activeCount = selectionSlots.filter((s) => s.game && s.version).length;
+  const activeCount = selectionSlots.filter(
+    (s) => s.game && s.version && s.day,
+  ).length;
   const countEl = document.getElementById("comp-slots-count");
   if (countEl) countEl.innerText = `${activeCount} Active`;
 
@@ -248,7 +324,7 @@ function renderCompSlots() {
   }
 }
 
-function toggleSlotDropdown(type, index, id) {
+function toggleSlotDropdown(type, index, id, btnElement) {
   const dropdown = document.getElementById(id);
   const isHidden = dropdown.classList.contains("hidden");
 
@@ -257,7 +333,31 @@ function toggleSlotDropdown(type, index, id) {
     .querySelectorAll(".slot-dropdown")
     .forEach((d) => d.classList.add("hidden"));
 
+  // Reset all chevrons in slots
+  document
+    .querySelectorAll("#comp-slots-container .fa-chevron-down")
+    .forEach((icon) => icon.classList.remove("chevron-rotate"));
+
+  // Reset all button backgrounds
+  document
+    .querySelectorAll(
+      "#comp-slots-container button[onclick^='toggleSlotDropdown']",
+    )
+    .forEach((btn) => {
+      btn.classList.remove("bg-slate-100", "border-blue-300");
+      btn.classList.add("bg-white", "border-slate-200");
+    });
+
   if (!isHidden) return;
+
+  // Add rotation to the clicked button's chevron and change its background
+  if (btnElement) {
+    const chevron = btnElement.querySelector(".fa-chevron-down");
+    if (chevron) chevron.classList.add("chevron-rotate");
+
+    btnElement.classList.remove("bg-white", "border-slate-200");
+    btnElement.classList.add("bg-slate-100", "border-blue-300");
+  }
 
   const state = selectionSlots[index];
   let content = "";
@@ -265,12 +365,12 @@ function toggleSlotDropdown(type, index, id) {
   if (type === "GAME") {
     content =
       `
-      <div class="bg-white border border-slate-100 rounded-2xl p-4 shadow-inner">
+      <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 shadow-inner">
         <div class="flex items-center justify-between mb-4 px-2">
           <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select Game Library</span>
-          <input type="text" placeholder="Filter..." class="w-32 text-[10px] p-1.5 bg-slate-50 rounded-lg outline-none border border-slate-100 focus:border-blue-300" oninput="filterSlotGames(${index})">
+          <input type="text" placeholder="Quick find game..." class="w-36 text-[10px] p-1.5 bg-white rounded-lg outline-none border border-slate-200 shadow-sm focus:border-blue-400 transition-all" oninput="filterSlotGames(${index})">
         </div>
-        <div class="slot-game-list grid grid-cols-3 gap-2">` +
+        <div class="slot-game-list grid grid-cols-4 gap-2">` +
       Object.keys(STUDIO_GAMES)
         .map((key) => {
           const data = STUDIO_GAMES[key];
@@ -280,18 +380,18 @@ function toggleSlotDropdown(type, index, id) {
             : "apple";
           return `
           <div class="nav-item ${isSelected ? "selected" : ""} !h-10 !rounded-xl" data-search="${key.toLowerCase()}" onclick="pickOption('GAME', '${key}', '${index}')">
-            <img src="${data.icon}" class="!w-5 !h-5" /><p class="!text-[11px]">${data.shortName || key}</p>
-            <div class="platform-icon-wrap"><i class="fab fa-${pIcon} ${pIcon === "android" ? "text-emerald-500" : "text-slate-400"} text-[9px]"></i></div>
+            <img src="${data.icon}" class="!w-5 !h-5 rounded-md" /><p class="!text-[11px] truncate">${data.shortName || key}</p>
+            <div class="platform-icon-wrap"><i class="fab fa-${pIcon} ${pIcon === "android" ? "text-emerald-500" : "text-slate-400"} text-[12px]"></i></div>
           </div>`;
         })
         .join("") +
       `</div></div>`;
   } else if (type === "VERSION") {
     content = `
-      <div class="bg-white border border-slate-100 rounded-2xl p-4 shadow-inner">
+      <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 shadow-inner">
         <div class="flex items-center justify-between mb-4 px-2">
           <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Available Versions</span>
-          <input type="text" id="slot-v-search-${index}" placeholder="Search..." class="w-32 text-[10px] p-1.5 bg-slate-50 rounded-lg outline-none border border-slate-100 focus:border-blue-300" oninput="filterSlotVersions(${index})">
+          <input type="text" id="slot-v-search-${index}" placeholder="Quick find version..." class="w-40 text-[10px] p-1.5 bg-white rounded-lg outline-none border border-slate-200 shadow-sm focus:border-blue-400 transition-all" oninput="filterSlotVersions(${index})">
         </div>
         <div id="sd-v-list-${index}" class="slot-version-list"></div>
         <div id="sd-v-nav-${index}"></div>
@@ -301,15 +401,31 @@ function toggleSlotDropdown(type, index, id) {
     updateSlotVersionUI(index);
     return; // UI is handled by updateSlotVersionUI
   } else {
+    const defaultDays = ["D0", "D7", "D30"];
+    const isBackendVersion =
+      STUDIO_GAMES[state.game] &&
+      STUDIO_GAMES[state.game].versions &&
+      STUDIO_GAMES[state.game].versions.includes(state.version);
+
+    let daysToShow = defaultDays;
+
+    if (!isBackendVersion) {
+      // It's a TEMP game/version: Only show what has been manually injected
+      const availableDays = defaultDays.filter(
+        (d) => MOCK_DATABASE[`${state.game}_${state.version}_${d}`],
+      );
+      if (availableDays.length > 0) daysToShow = availableDays;
+    }
+
     content =
       `
-      <div class="bg-white border border-slate-100 rounded-2xl p-4 shadow-inner">
+      <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 shadow-inner">
         <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 px-2">Retention Day Context</p>
         <div class="grid grid-cols-3 gap-2">` +
-      ["D0", "D7", "D30"]
+      daysToShow
         .map(
           (d) =>
-            `<button class="list-item !min-h-[36px] !text-[11px] !justify-center ${state.day === d ? "selected" : ""}" onclick="pickOption('DAY', '${d}', '${index}')">${d}</button>`,
+            `<button class="list-item !min-h-[36px] !text-[11px] !justify-center ${state.day === d ? "selected" : ""}" onclick="pickOption('DAY', '${d}', '${index}')">${d.replace("D", "Day ")}</button>`,
         )
         .join("") +
       `</div></div>`;
@@ -326,7 +442,17 @@ function updateSlotVersionUI(index, query = "") {
   const navContainer = document.getElementById(`sd-v-nav-${index}`);
   if (!listContainer || !navContainer) return;
 
-  let versions = [...(metadata.versions[state.game] || [])].reverse();
+  const baseVersions = [...(metadata.versions[state.game] || [])].reverse();
+
+  // Hoist benchmark versions to the top
+  const bmVersions = baseVersions.filter(
+    (v) => getBenchmarkTagsHTML(state.game, v) !== "",
+  );
+  const normalVersions = baseVersions.filter(
+    (v) => getBenchmarkTagsHTML(state.game, v) === "",
+  );
+  let versions = [...bmVersions, ...normalVersions];
+
   if (query) {
     versions = versions.filter((v) =>
       v.toLowerCase().includes(query.toLowerCase()),
@@ -336,8 +462,10 @@ function updateSlotVersionUI(index, query = "") {
   const pageSize = 6;
   const totalPages = Math.ceil(versions.length / pageSize);
 
-  // Auto-reset page if query makes it out of bounds
-  if (state.versionPage >= totalPages && totalPages > 0) state.versionPage = 0;
+  // Auto-reset page bounds to prevent blank pagination or crashes
+  if (state.versionPage >= totalPages && totalPages > 0)
+    state.versionPage = totalPages - 1;
+  if (state.versionPage < 0) state.versionPage = 0;
 
   const start = state.versionPage * pageSize;
   const pageVersions = versions.slice(start, start + pageSize);
@@ -345,7 +473,10 @@ function updateSlotVersionUI(index, query = "") {
   listContainer.innerHTML = pageVersions
     .map(
       (v) =>
-        `<button class="list-item !min-h-[32px] !text-[11px] !justify-center" onclick="pickOption('VERSION', '${v}', '${index}')">${v}</button>`,
+        `<button class="list-item !w-auto !min-h-[40px] !text-[13px] !justify-between !px-4 gap-4 ${state.version === v ? "selected" : ""}" onclick="pickOption('VERSION', '${v}', '${index}')">
+           <span class="truncate font-bold">${v}</span>
+           ${getBenchmarkTagsHTML(state.game, v)}
+        </button>`,
     )
     .join("");
 
@@ -376,7 +507,7 @@ function addNewSlot() {
   selectionSlots.push({
     game: selectionSlots[0].game,
     version: null,
-    day: "D0",
+    day: null,
     versionPage: 0,
   });
   renderCompSlots();
@@ -385,7 +516,7 @@ function addNewSlot() {
 function removeSlot(index) {
   selectionSlots.splice(index, 1);
   renderCompSlots();
-  refreshDashboard();
+  refreshDashboard2();
 }
 
 function switchTab(tabId) {
@@ -484,8 +615,9 @@ function pickOption(type, value, context = "inject") {
       ? activeInjection
       : context === "base"
         ? baseSelection
-        : selectionSlots[context];
-  state[type.toLowerCase()] = value;
+        : context === "comp"
+          ? compSelection
+          : selectionSlots[context];
 
   if (context === "inject") {
     const btnId = `btn-select-${type.toLowerCase()}`;
@@ -494,31 +626,131 @@ function pickOption(type, value, context = "inject") {
       btn.classList.replace("empty", "filled");
 
       if (type === "GAME") {
+        processBenchmarks(value);
         const gData = STUDIO_GAMES[value];
         const pIcon = gData.platforms.includes("android")
           ? "fab fa-android"
           : "fab fa-apple";
-        btn.innerHTML = `<i class="fas fa-gamepad opacity-60"></i> <span class="flex-1 text-left ml-2">${gData.shortName || value}</span> <i class="${pIcon} text-[10px] opacity-60"></i>`;
+        const platform = gData.platforms.includes("android")
+          ? "android"
+          : "ios";
+
+        // Store game, shortName, and platform
+        state.game = value;
+        state.gameShortName =
+          gData.shortName || value.replace(/\s*ios\s*$/i, "");
+        state.platform = platform;
+        state.version = null; // Reset version when game changes
+        state.day = null; // Reset day when game changes
+
+        btn.innerHTML = `<i class="fas fa-gamepad opacity-60"></i> <span class="flex-1 text-left ml-2">${state.gameShortName}</span> <i class="${pIcon} text-[10px] opacity-60"></i>`;
         document.getElementById("btn-select-version").disabled = false;
+
+        // Reset version and day buttons
+        const versionBtn = document.getElementById("btn-select-version");
+        const dayBtn = document.getElementById("btn-select-day");
+        if (versionBtn) {
+          versionBtn.classList.replace("filled", "empty");
+          versionBtn.innerHTML = `<i class="fas fa-code-branch"></i> <span>Select Version</span>`;
+          versionBtn.disabled = false;
+        }
+        if (dayBtn) {
+          dayBtn.classList.replace("filled", "empty");
+          dayBtn.innerHTML = `<i class="fas fa-calendar-day"></i> <span>Select Day</span>`;
+        }
       } else if (type === "VERSION") {
+        state.version = value;
         btn.innerHTML = `<i class="fas fa-code-branch opacity-60"></i> <span class="flex-1 text-left ml-2">${value}</span>`;
       } else {
+        state.day = value;
         btn.innerHTML = `<i class="fas fa-calendar-day opacity-60"></i> <span class="flex-1 text-left ml-2">${value}</span>`;
       }
     }
     validateInjection();
   } else if (context === "base") {
     if (type === "GAME") {
-      syncNavSwitcher(value);
+      processBenchmarks(value);
+      const gameData = STUDIO_GAMES[value];
+      const platform = gameData.platforms.includes("android")
+        ? "android"
+        : "ios";
+
+      // Store game, shortName, and platform
+      state.game = value;
+      state.gameShortName =
+        gameData?.shortName || value.replace(/\s*ios\s*$/i, "");
+      state.platform = platform;
       state.version = null;
+      state.day = null;
+
+      syncNavSwitcher(value);
+      initNavSwitcher(); // Refresh the visual selection state in the dropdown list
+
       document.getElementById("nav-current-version").innerText =
-        "None Selected";
+        "Select Version";
+      document.getElementById("nav-current-day").innerText = "Select Day";
+
+      // Enable version button
+      document.getElementById("btn-base-version").disabled = false;
+      // Disable day button until version is selected
+      document.getElementById("btn-base-day").disabled = true;
     } else if (type === "VERSION") {
-      document.getElementById("nav-current-version").innerText = value;
+      state.version = value;
+      state.day = null; // Reset day when version changes
+      const tags = getBenchmarkTagsHTML(state.game, value).replace(
+        "ml-auto",
+        "",
+      );
+      document.getElementById("nav-current-version").innerHTML =
+        `<span class="flex items-center gap-1.5">${value} ${tags}</span>`;
+      document.getElementById("nav-current-day").innerText = "Select Day";
+      initDaySwitcher(state.game, value);
     } else if (type === "DAY") {
-      document.getElementById("nav-current-day").innerText = value;
+      state.day = value;
+      document.getElementById("nav-current-day").innerText = value.replace(
+        "D",
+        "Day ",
+      );
+    }
+  } else if (context === "comp") {
+    if (type === "GAME") {
+      processBenchmarks(value);
+      const gameData = STUDIO_GAMES[value];
+      const platform = gameData.platforms.includes("android")
+        ? "android"
+        : "ios";
+
+      state.game = value;
+      state.gameShortName =
+        gameData?.shortName || value.replace(/\s*ios\s*$/i, "");
+      state.platform = platform;
+      state.version = null;
+      state.day = null;
+    } else {
+      state[type.toLowerCase()] = value;
     }
   } else {
+    // Slot context (index passed as string)
+    if (type === "GAME") {
+      processBenchmarks(value);
+      const gameData = STUDIO_GAMES[value];
+      const platform = gameData.platforms.includes("android")
+        ? "android"
+        : "ios";
+
+      state.game = value;
+      state.gameShortName =
+        gameData?.shortName || value.replace(/\s*ios\s*$/i, "");
+      state.platform = platform;
+      state.version = null;
+      state.day = null;
+    } else if (type === "VERSION") {
+      state.version = value;
+      state.day = null; // Reset day when version changes
+    } else {
+      state.day = value;
+    }
+
     renderCompSlots();
     document
       .querySelectorAll(".slot-dropdown")
@@ -526,7 +758,11 @@ function pickOption(type, value, context = "inject") {
   }
 
   closeSelection();
-  refreshDashboard();
+
+  // Prevent main dashboard reload when merely picking injection filters
+  if (context !== "inject") {
+    refreshDashboard2();
+  }
 }
 
 function updateCompareHeader(activeSlots) {
@@ -541,32 +777,58 @@ function updateCompareHeader(activeSlots) {
       const icon = data ? data.icon : "https://via.placeholder.com/32";
       const fullName = s.game.replace(/\s*ios\s*$/i, "");
       const formattedDay = s.day.replace("D", "Day ");
-      const crownHTML =
-        i === 0
-          ? `<i class="fas fa-crown absolute -top-5 -left-3 text-amber-400 text-xl drop-shadow-md -rotate-12 z-10"></i>`
-          : "";
 
-      return `
-      <div class="flex-1 flex items-center gap-3 px-4 first:pl-0 min-w-0">
-        <span class="text-4xl font-black text-slate-900 pr-4 border-r border-slate-200 leading-none">${slotLetters[i]}</span>
-        <div class="relative shrink-0 ml-1">
-          ${crownHTML}
-          <img src="${icon}" class="w-12 h-12 rounded-xl object-cover shadow-sm border border-slate-100 relative z-0" />
-        </div>
-        <div class="flex flex-col items-start min-w-0 w-full justify-center">
-          <span class="text-sm font-black text-slate-800 leading-none mb-1.5 truncate w-full">${fullName}</span>
-          <div class="flex items-center gap-1.5 text-[9px] font-bold text-slate-500 tracking-widest shrink-0">
-            <span class="bg-slate-100/80 px-1.5 py-0.5 rounded border border-slate-200 text-slate-600 normal-case">v${s.version}</span>
-            <span class="bg-slate-100/80 px-1.5 py-0.5 rounded border border-slate-200 text-slate-600 uppercase">${formattedDay}</span>
+      const isAndroid =
+        data?.platforms?.includes("android") || data?.platform === "android";
+      const pIcon = isAndroid
+        ? '<i class="fab fa-android text-emerald-500 text-[11px]"></i>'
+        : '<i class="fab fa-apple text-slate-400 text-[11px]"></i>';
+
+      // Check if the current slot's selection is a benchmark
+      const isBenchmark =
+        BENCHMARK_MAP[s.game] &&
+        BENCHMARK_MAP[s.game][s.day] === String(s.version);
+
+      if (i === 0) {
+        const crownHtml = isBenchmark
+          ? `<i class="fas fa-crown text-amber-600 mr-1"></i>`
+          : "";
+        return `
+          <div class="flex items-center gap-3 bg-amber-50/80 border border-amber-200 px-5 py-2 rounded-full shadow-sm shadow-amber-100/60 shrink-0">
+            <span class="w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs font-black shadow-sm">A</span>
+            <img src="${icon}" class="w-6 h-6 rounded-lg object-cover border border-amber-200/40 shrink-0" />
+            <span class="text-sm font-black text-amber-950 tracking-tight">${fullName}</span>
+            <span class="inline-flex items-center justify-center shrink-0 w-4 h-4 bg-white rounded-full border border-amber-200/40">${pIcon}</span>
+            <div class="h-4 w-[1px] bg-amber-200/80 mx-0.5"></div>
+            <span class="bg-amber-500 text-white text-[10px] font-black px-2.5 py-0.5 rounded-md tracking-tight">v${s.version}</span>
+            <span class="bg-amber-100 text-amber-800 text-[10px] font-black px-2.5 py-0.5 rounded-md tracking-tight uppercase">${crownHtml}${formattedDay}</span>
           </div>
-        </div>
-      </div>
-    `;
+        `;
+      } else {
+        const crownHtml = isBenchmark
+          ? `<i class="fas fa-crown text-amber-500 mr-1 drop-shadow-sm"></i>`
+          : "";
+        const dayBadgeClasses = isBenchmark
+          ? "bg-amber-50 text-amber-700 border border-amber-200/60 shadow-sm"
+          : "bg-slate-100 text-slate-700 border border-transparent";
+
+        return `
+          <div class="flex items-center gap-3 bg-white border border-slate-200 px-5 py-2 rounded-full shadow-sm shrink-0">
+            <span class="w-6 h-6 rounded-full bg-slate-800 text-white flex items-center justify-center text-xs font-black">${slotLetters[i]}</span>
+            <img src="${icon}" class="w-6 h-6 rounded-lg object-cover border border-slate-100 shrink-0" />
+            <span class="text-sm font-bold text-slate-700 tracking-tight">${fullName}</span>
+            <span class="inline-flex items-center justify-center shrink-0 w-4 h-4 bg-slate-50 rounded-full border border-slate-100">${pIcon}</span>
+            <div class="h-4 w-[1px] bg-slate-200 mx-0.5"></div>
+            <span class="bg-slate-100 text-slate-700 text-[10px] font-black px-2.5 py-0.5 rounded-md tracking-tight">v${s.version}</span>
+            <span class="${dayBadgeClasses} text-[10px] font-black px-2.5 py-0.5 rounded-md tracking-tight uppercase transition-all">${crownHtml}${formattedDay}</span>
+          </div>
+        `;
+      }
     })
     .join("");
 
   header.className =
-    "mb-10 pb-6 border-b border-slate-100 flex w-full items-center justify-between";
+    "mb-6 pb-4 border-b border-slate-100 flex flex-wrap gap-4 items-center";
 }
 
 function refreshDashboard() {
@@ -577,22 +839,40 @@ function refreshDashboard() {
     compareHeader?.classList.add("hidden");
     compareHeader?.classList.remove("flex");
 
-    const g = baseSelection.game,
-      v = baseSelection.version,
-      d = baseSelection.day || "D0";
+    const g = baseSelection.game;
+    const v = baseSelection.version;
+    const d = baseSelection.day;
+
+    // Only proceed if ALL three are selected
+    if (!g || !v || !d) {
+      // Clear dashboard or show placeholder
+      clearDashboard();
+      return;
+    }
 
     if (g) updateGameHeader(g);
 
-    if (!g || !v) return;
     const data = MOCK_DATABASE[`${g}_${v}_${d}`];
-    if (data) updateDashboardUI(data);
+    console.log(`${g}_${v}_${d}`);
+
+    if (data) {
+      updateDashboardUI(data);
+    } else {
+      clearDashboard();
+    }
   } else {
+    // Compare mode logic remains the same...
     gameHeader?.classList.add("hidden");
-    const activeSlots = selectionSlots.filter((s) => s.game && s.version);
+    const activeSlots = selectionSlots.filter(
+      (s) => s.game && s.version && s.day,
+    );
 
     if (activeSlots.length > 0) updateCompareHeader(activeSlots);
 
-    if (activeSlots.length < 2) return;
+    if (activeSlots.length < 2) {
+      clearDashboard();
+      return;
+    }
 
     const datasets = activeSlots
       .map((s) => ({
@@ -605,42 +885,20 @@ function refreshDashboard() {
       updateDashboardUI(datasets[0].data, datasets.slice(1));
     } else if (datasets.length === 1) {
       updateDashboardUI(datasets[0].data);
+    } else {
+      clearDashboard();
     }
   }
 }
+
 function updateGameHeader(gameName) {
-  const header = document.getElementById("game-header");
-  const nameEl = document.getElementById("header-game-name");
-  const packageEl = document.getElementById("header-package-name");
-  const tagsEl = document.getElementById("header-tags");
-  const iconEl = document.getElementById("header-app-icon");
-  const androidIcon = document.getElementById("header-platform-android");
-  const iosIcon = document.getElementById("header-platform-ios");
-
-  const data = STUDIO_GAMES[gameName];
-  header.classList.remove("hidden");
-
-  // Clean name for header
-  nameEl.innerText = gameName.replace(/\s*ios\s*$/i, "");
-
-  if (data) {
-    packageEl.innerText = data.package;
-    iconEl.src = data.icon;
-    tagsEl.innerHTML = data.tags
-      .map((t) => `<span class="game-tag">${t}</span>`)
-      .join("");
-    androidIcon.classList.toggle("hidden", !data.platforms.includes("android"));
-    iosIcon.classList.toggle("hidden", !data.platforms.includes("ios"));
-  } else {
-    packageEl.innerText = "package.not.available";
-    iconEl.src = "https://via.placeholder.com/150?text=App+Icon";
-    tagsEl.innerHTML = `<span class="game-tag text-slate-400">Custom Title</span>`;
-    androidIcon.classList.add("hidden");
-    iosIcon.classList.add("hidden");
-  }
+  // Name bar removed for single mode to maximize vertical viewing space
+  return;
 }
+
 let currentInputTarget = null;
 let currentActiveSelect = null;
+let newGameSelectedPlatform = "android"; // Default platform for new games
 let charts = {}; // Consolidated chart storage
 
 function closeSelection() {
@@ -668,22 +926,146 @@ function syncAllDropdowns() {
   });
 }
 
+function validateInputModal() {
+  const confirmBtn = document.getElementById("btn-modal-confirm");
+  const tooltip = document.getElementById("modal-confirm-tooltip");
+
+  if (currentInputTarget === "GAME") {
+    const nameVal = document.getElementById("add-game-name").value.trim();
+    const shortVal = document.getElementById("add-game-short").value.trim();
+
+    if (!nameVal || !shortVal) {
+      confirmBtn.disabled = true;
+      tooltip.innerText = "Please fill all fields";
+      return;
+    }
+
+    let isDuplicate = false;
+    let duplicateReason = "Game is already available";
+
+    for (const key in STUDIO_GAMES) {
+      const g = STUDIO_GAMES[key];
+      const isSamePlatform =
+        g.platform === newGameSelectedPlatform ||
+        (g.platforms && g.platforms.includes(newGameSelectedPlatform));
+
+      if (isSamePlatform) {
+        if (g.name.toLowerCase() === nameVal.toLowerCase()) {
+          isDuplicate = true;
+          duplicateReason = "Game Name already exists";
+          break;
+        }
+        if ((g.shortName || "").toLowerCase() === shortVal.toLowerCase()) {
+          isDuplicate = true;
+          duplicateReason = "Short Name already used";
+          break;
+        }
+      }
+    }
+
+    if (isDuplicate) {
+      confirmBtn.disabled = true;
+      tooltip.innerText = duplicateReason;
+      return;
+    }
+
+    confirmBtn.disabled = false;
+  } else {
+    let val = document.getElementById("custom-input-field").value.trim();
+
+    if (!val) {
+      confirmBtn.disabled = true;
+      tooltip.innerText = "Enter a version";
+      return;
+    }
+
+    let cleanVal = val.replace(/^(v|version)\s*/i, "");
+
+    if (/[^0-9.]/.test(cleanVal)) {
+      confirmBtn.disabled = true;
+      tooltip.innerText = "Use numerical values only";
+      return;
+    }
+
+    let context = currentTargetContext;
+    if (currentActiveSelect && currentActiveSelect.includes("base"))
+      context = "base";
+    if (currentActiveSelect && currentActiveSelect.includes("comp"))
+      context = "comp";
+
+    let state = activeInjection;
+    if (context === "base") state = baseSelection;
+    if (context === "comp") state = compSelection;
+    if (typeof context === "number" || /^\d+$/.test(context))
+      state = selectionSlots[context];
+
+    if (
+      state.game &&
+      metadata.versions[state.game] &&
+      metadata.versions[state.game].includes(cleanVal)
+    ) {
+      confirmBtn.disabled = true;
+      tooltip.innerText = "Version already exists";
+      return;
+    }
+
+    confirmBtn.disabled = false;
+  }
+}
+
+function selectNewGamePlatform(platform) {
+  newGameSelectedPlatform = platform;
+  const btnAndroid = document.getElementById("btn-plat-android");
+  const btnIos = document.getElementById("btn-plat-ios");
+
+  if (platform === "android") {
+    btnAndroid.className =
+      "flex-1 py-2.5 rounded-xl text-sm font-bold bg-emerald-500 text-white shadow-sm flex justify-center items-center gap-2 transition-all";
+    btnIos.className =
+      "flex-1 py-2.5 rounded-xl text-sm font-bold bg-slate-100 text-slate-500 hover:bg-slate-200 flex justify-center items-center gap-2 transition-all";
+  } else {
+    btnIos.className =
+      "flex-1 py-2.5 rounded-xl text-sm font-bold bg-slate-800 text-white shadow-sm flex justify-center items-center gap-2 transition-all";
+    btnAndroid.className =
+      "flex-1 py-2.5 rounded-xl text-sm font-bold bg-slate-100 text-slate-500 hover:bg-slate-200 flex justify-center items-center gap-2 transition-all";
+  }
+
+  validateInputModal();
+}
+
 function openInputModal(type, el, gameContext = "") {
   currentInputTarget = type;
   currentActiveSelect = el;
   const modal = document.getElementById("input-modal");
   const title = document.getElementById("input-modal-title");
   const desc = document.getElementById("input-modal-desc");
-  const input = document.getElementById("custom-input-field");
+
+  const formGame = document.getElementById("form-game-add");
+  const formVersion = document.getElementById("form-version-add");
 
   title.innerText = type === "GAME" ? "Add New Game" : "Add New Version";
   desc.innerText =
     type === "GAME"
-      ? "Enter the new game title."
+      ? "Enter the details below."
       : `Add a version for ${gameContext}.`;
-  input.value = "";
+
+  if (type === "GAME") {
+    formGame.classList.remove("hidden");
+    formVersion.classList.add("hidden");
+    document.getElementById("add-game-name").value = "";
+    document.getElementById("add-game-short").value = "";
+    selectNewGamePlatform("android"); // Reset to default triggers validation
+    setTimeout(() => document.getElementById("add-game-name").focus(), 100);
+  } else {
+    formGame.classList.add("hidden");
+    formVersion.classList.remove("hidden");
+    const input = document.getElementById("custom-input-field");
+    input.value = "";
+    validateInputModal(); // Force initial disabled state
+    setTimeout(() => input.focus(), 100);
+  }
+
   modal.classList.remove("hidden");
-  input.focus();
 }
 
 function closeInputModal() {
@@ -691,45 +1073,60 @@ function closeInputModal() {
 }
 
 function submitInputModal() {
-  let val = document.getElementById("custom-input-field").value.trim();
-  if (!val) return;
-
-  // Validation: Version must be numeric/decimal only (no symbols or alphabets)
-  if (currentInputTarget === "VERSION") {
-    const numericVal = val.replace(/[^0-9.]/g, "");
-    if (!numericVal || numericVal !== val) {
-      alert("Error: Version must be numbers or decimals only.");
-      return;
-    }
-  }
-
   if (currentInputTarget === "GAME") {
-    if (!metadata.games.includes(val)) {
-      metadata.games.push(val);
-      metadata.versions[val] = [];
-      syncAllDropdowns();
-      const context = currentActiveSelect.includes("base")
-        ? "base"
-        : currentActiveSelect.includes("comp")
-          ? "comp"
-          : "inject";
-      pickOption("GAME", val, context);
+    const nameVal = document.getElementById("add-game-name").value.trim();
+    const shortVal = document.getElementById("add-game-short").value.trim();
+
+    if (!nameVal || !shortVal) {
+      return; // Handled by validation lock
+    }
+
+    if (!metadata.games.includes(nameVal)) {
+      // Inject directly into STUDIO_GAMES to preserve metadata mappings
+      STUDIO_GAMES[nameVal] = {
+        name: nameVal,
+        displayName: nameVal,
+        shortName: shortVal,
+        icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='transparent'/%3E%3Cpath d='M83.9 33.2l-6.7-13.9A9.6 9.6 0 0 0 68.6 13H31.4a9.6 9.6 0 0 0-8.6 6.3l-6.7 13.9A19.8 19.8 0 0 0 14.2 49v11.4A10.3 10.3 0 0 0 24.5 71h3.7a8.1 8.1 0 0 0 7.3-4.7l4.3-8.7h19.4l4.3 8.7a8.1 8.1 0 0 0 7.3 4.7h3.7A10.3 10.3 0 0 0 84.8 60.4V49a19.8 19.8 0 0 0-1.9-15.8zM34.2 45.4h-5v5a1.7 1.7 0 0 1-3.4 0v-5h-5a1.7 1.7 0 0 1 0-3.4h5v-5a1.7 1.7 0 0 1 3.4 0v5h5a1.7 1.7 0 0 1 0 3.4zm30 3.4a3.3 3.3 0 1 1 3.3-3.3 3.3 3.3 0 0 1-3.3 3.3zm6.6-10a3.3 3.3 0 1 1 3.3-3.3 3.3 3.3 0 0 1-3.3 3.3z' fill='%23334155'/%3E%3C/svg%3E",
+        platform: newGameSelectedPlatform,
+        versions: [],
+        platforms: [newGameSelectedPlatform],
+      };
+
+      metadata.games.push(nameVal);
+      metadata.versions[nameVal] = [];
+
+      if (typeof syncAllDropdowns === "function") syncAllDropdowns();
+      if (typeof initNavSwitcher === "function") initNavSwitcher();
+
+      let context = currentTargetContext;
+      if (currentActiveSelect && currentActiveSelect.includes("base"))
+        context = "base";
+      if (currentActiveSelect && currentActiveSelect.includes("comp"))
+        context = "comp";
+
+      pickOption("GAME", nameVal, context);
     }
   } else {
-    const context = currentActiveSelect.includes("base")
-      ? "base"
-      : currentActiveSelect.includes("comp")
-        ? "comp"
-        : "inject";
-    const state =
-      context === "inject"
-        ? activeInjection
-        : context === "base"
-          ? baseSelection
-          : compSelection;
-    if (state.game && !metadata.versions[state.game].includes(val)) {
-      metadata.versions[state.game].push(val);
-      pickOption("VERSION", val, context);
+    let val = document.getElementById("custom-input-field").value.trim();
+    let cleanVal = val.replace(/^(v|version)\s*/i, "");
+    if (!cleanVal) return;
+
+    let context = currentTargetContext;
+    if (currentActiveSelect && currentActiveSelect.includes("base"))
+      context = "base";
+    if (currentActiveSelect && currentActiveSelect.includes("comp"))
+      context = "comp";
+
+    let state = activeInjection;
+    if (context === "base") state = baseSelection;
+    if (context === "comp") state = compSelection;
+    if (typeof context === "number" || /^\d+$/.test(context))
+      state = selectionSlots[context];
+
+    if (state.game && !metadata.versions[state.game].includes(cleanVal)) {
+      metadata.versions[state.game].push(cleanVal);
+      pickOption("VERSION", cleanVal, context);
     }
   }
   document.getElementById("input-modal").classList.add("hidden");
@@ -746,8 +1143,8 @@ function previewData() {
     .split(/[\t\n\r]+/)
     .map((val) => parseFloat(val.replace(/,/g, "").replace(/%/g, "")));
 
-  if (row.length < 28) {
-    alert(`⚠️ Error: Found ${row.length} KPIs, 28 expected.`);
+  if (row.length < 34) {
+    alert(`⚠️ Error: Found ${row.length} KPIs, 34 expected.`);
     return;
   }
 
@@ -767,6 +1164,35 @@ function previewData() {
 
 function finalizeInjection() {
   if (pendingRowData) {
+    // Save to local Mock Database so the dynamic dropdowns can detect the new data
+    MOCK_DATABASE[
+      `${activeInjection.game}_${activeInjection.version}_${activeInjection.day}`
+    ] = pendingRowData;
+
+    // Recalculate benchmarks in case this newly injected data is the winner
+    processBenchmarks(activeInjection.game);
+
+    // Sync injection state to base selection
+    baseSelection.game = activeInjection.game;
+    baseSelection.gameShortName = activeInjection.gameShortName;
+    baseSelection.platform = activeInjection.platform;
+    baseSelection.version = activeInjection.version;
+    baseSelection.day = activeInjection.day;
+
+    // Force top nav bar UI to reflect the newly injected data
+    syncNavSwitcher(baseSelection.game);
+    initNavSwitcher(); // Refresh the visual selection state in the dropdown list
+
+    document.getElementById("btn-base-version").disabled = false;
+    document.getElementById("nav-current-version").innerText =
+      baseSelection.version;
+
+    // Populate the dynamic day list for the new injection
+    initDaySwitcher(baseSelection.game, baseSelection.version);
+    document.getElementById("nav-current-day").innerText =
+      baseSelection.day.replace("D", "Day ");
+
+    // Render preview
     updateDashboardUI(pendingRowData);
     pendingRowData = null;
   }
@@ -786,6 +1212,8 @@ const tailwindColors = {
   violet: { hex: "#8b5cf6", glass: "rgba(139, 92, 246, 0.12)" },
   indigo: { hex: "#6366f1", glass: "rgba(99, 102, 241, 0.12)" },
   rose: { hex: "#f43f5e", glass: "rgba(244, 63, 94, 0.12)" },
+  cyan: { hex: "#06b6d4", glass: "rgba(6, 182, 212, 0.12)" },
+  pink: { hex: "#ec4899", glass: "rgba(236, 72, 153, 0.12)" },
 };
 function getLayerLabel(index) {
   if (dashboardMode !== "compare")
@@ -834,6 +1262,7 @@ const formatCValue = (val, idx) => {
   )
     return val.toFixed(2) + "%";
   if (idx === 12) return val.toFixed(2);
+  if (idx >= 28 && idx <= 33) return val.toFixed(3);
   if (idx === 22 || idx === 21) return formatTime(val);
   return val;
 };
@@ -1012,7 +1441,7 @@ function updateDashboardUI(data, compLayers = null) {
       color: "blue",
     },
     {
-      label: "ROAS",
+      label: "Return On Ad Spend",
       val: data[27].toFixed(2) + "%",
       rawVal: data[27],
       index: 27,
@@ -1028,14 +1457,6 @@ function updateDashboardUI(data, compLayers = null) {
       color: "emerald",
     },
     {
-      label: "Install to Onboard %",
-      val: data[20].toFixed(2) + "%",
-      rawVal: data[20],
-      index: 20,
-      icon: `<svg viewBox="0 0 24 24" fill="currentColor" style="width: 1.25em; height: 1.25em;"><path d="M4.5 3.5C3.5 3.5 2.5 4.3 2.5 5.3v13.4c0 1 1 1.8 2 1.8l7.5 1.7c.8.2 1.5-.4 1.5-1.2V3c0-.8-.7-1.4-1.5-1.2L4.5 3.5z"/><circle cx="9.5" cy="12" r="1.3" fill="white"/><path d="M23.5 10.5h-5.5v-2.5l-4 4 4 4v-2.5h5.5v-3z"/><path d="M15 2v2h4c.6 0 1 .4 1 1v14c0 .6-.4 1-1 1h-4v2h4c1.7 0 3-1.3 3-3V5c0-1.7-1.3-3-3-3h-4z"/></svg>`,
-      color: "violet",
-    },
-    {
       label: "Day 1 Retention",
       val: data[23].toFixed(2) + "%",
       rawVal: data[23],
@@ -1044,12 +1465,44 @@ function updateDashboardUI(data, compLayers = null) {
       color: "indigo",
     },
     {
+      label: "Day 3 Retention",
+      val: data[24].toFixed(2) + "%",
+      rawVal: data[24],
+      index: 24,
+      icon: "fa-calendar relative d3-text-icon",
+      color: "blue",
+    },
+    {
       label: "Avg Playtime",
       val: formatTime(data[22]),
       rawVal: data[22],
       index: 22,
       icon: "fa-bolt",
       color: "rose",
+    },
+    {
+      label: "Avg. Session Length",
+      val: formatTime(data[21]),
+      rawVal: data[21],
+      index: 21,
+      icon: "fa-clock",
+      color: "violet",
+    },
+    {
+      label: "Interstitial /user",
+      val: data[29].toFixed(3),
+      rawVal: data[29],
+      index: 29,
+      icon: "fa-circle relative is-text-icon",
+      color: "cyan",
+    },
+    {
+      label: "Rewarded /user",
+      val: data[28].toFixed(3),
+      rawVal: data[28],
+      index: 28,
+      icon: "fa-circle relative rv-text-icon",
+      color: "pink",
     },
   ];
 
@@ -1092,7 +1545,7 @@ function updateDashboardUI(data, compLayers = null) {
 
   const adCards = [
     {
-      label: "ROAS",
+      label: "Return On Ad Spend",
       val: data[27].toFixed(2) + "%",
       rawVal: data[27],
       index: 27,
@@ -1129,10 +1582,10 @@ function updateDashboardUI(data, compLayers = null) {
 
   const performanceCards = [
     {
-      label: "Onboarded Users",
-      val: data[13].toLocaleString(),
-      rawVal: data[13],
-      index: 13,
+      label: "Install to Onboard %",
+      val: data[20].toFixed(2) + "%",
+      rawVal: data[20],
+      index: 20,
       icon: `<svg viewBox="0 0 24 24" fill="currentColor" style="width: 1.25em; height: 1.25em;"><path d="M4.5 3.5C3.5 3.5 2.5 4.3 2.5 5.3v13.4c0 1 1 1.8 2 1.8l7.5 1.7c.8.2 1.5-.4 1.5-1.2V3c0-.8-.7-1.4-1.5-1.2L4.5 3.5z"/><circle cx="9.5" cy="12" r="1.3" fill="white"/><path d="M23.5 10.5h-5.5v-2.5l-4 4 4 4v-2.5h5.5v-3z"/><path d="M15 2v2h4c.6 0 1 .4 1 1v14c0 .6-.4 1-1 1h-4v2h4c1.7 0 3-1.3 3-3V5c0-1.7-1.3-3-3-3h-4z"/></svg>`,
       color: "violet",
     },
@@ -1181,6 +1634,7 @@ function renderDatasetTable() {
   const formatNum = (val) => val.toLocaleString();
   const formatPct = (val) => val.toFixed(2) + "%";
   const formatDec = (val) => val.toFixed(2);
+  const formatDec3 = (val) => val.toFixed(3);
 
   const tailwindColors = {
     blue: { hex: "#3b82f6", glass: "rgba(59, 130, 246, 0.08)" },
@@ -1188,6 +1642,8 @@ function renderDatasetTable() {
     emerald: { hex: "#10b981", glass: "rgba(16, 185, 129, 0.08)" },
     rose: { hex: "#f43f5e", glass: "rgba(244, 63, 94, 0.08)" },
     orange: { hex: "#f97316", glass: "rgba(249, 115, 22, 0.08)" },
+    cyan: { hex: "#06b6d4", glass: "rgba(6, 182, 212, 0.08)" },
+    pink: { hex: "#ec4899", glass: "rgba(236, 72, 153, 0.08)" },
   };
 
   const categories = [
@@ -1214,7 +1670,7 @@ function renderDatasetTable() {
       ],
     },
     {
-      title: "Monetization Systems (IS+RV)",
+      title: "Monetization Systems",
       icon: "fa-video relative ad-text-icon",
       color: "emerald",
       metrics: [
@@ -1223,19 +1679,12 @@ function renderDatasetTable() {
         { label: "Ads 40 Reach %", idx: 9, fmt: formatPct },
         { label: "Ads 70 Reach %", idx: 10, fmt: formatPct },
         { label: "Ads 100 Reach %", idx: 11, fmt: formatPct },
-        { label: "Avg Ad per user", idx: 12, fmt: formatDec },
-        {
-          label: "User Ad Failure Rate",
-          idx: 25,
-          fmt: formatPct,
-          invert: true,
-        },
-        {
-          label: "Ad Request Failure %",
-          idx: 26,
-          fmt: formatPct,
-          invert: true,
-        },
+        { label: "Interstitial /user", idx: 29, fmt: formatDec3 },
+        { label: "Rewarded /user", idx: 28, fmt: formatDec3 },
+        { label: "Banner /user", idx: 30, fmt: formatDec3 },
+        { label: "Interstitial ECPM", idx: 32, fmt: formatDec3 },
+        { label: "Rewarded ECPM", idx: 31, fmt: formatDec3 },
+        { label: "Banner ECPM", idx: 33, fmt: formatDec3 },
       ],
     },
     {
@@ -1253,7 +1702,22 @@ function renderDatasetTable() {
       title: "Revenue Health",
       icon: "fa-hand-holding-dollar",
       color: "orange",
-      metrics: [{ label: "ROAS", idx: 27, fmt: formatPct }],
+      metrics: [
+        { label: "Return On Ad Spend", idx: 27, fmt: formatPct },
+        { label: "Avg Ad per user", idx: 12, fmt: formatDec },
+        {
+          label: "User Ad Failure Rate",
+          idx: 25,
+          fmt: formatPct,
+          invert: true,
+        },
+        {
+          label: "Ad Request Failure %",
+          idx: 26,
+          fmt: formatPct,
+          invert: true,
+        },
+      ],
     },
   ];
 
@@ -1552,7 +2016,8 @@ function renderRetentionChart() {
       animation: {
         duration: 1200,
         easing: "easeOutQuart",
-        delay: (context) => context.dataIndex * 50,
+        delay: (context) =>
+          context.type === "data" ? context.dataIndex * 50 : 0,
       },
       plugins: {
         legend: {
@@ -1759,9 +2224,13 @@ function renderAdDepthChart() {
     });
   }
 
-  tableContainer.innerHTML = tableHTML;
+  // Only inject HTML on initial data pull when container is empty to stop tab-switch reflow drops
+  if (!tableContainer.innerHTML.trim()) {
+    tableContainer.innerHTML = tableHTML;
+  }
 
   if (charts.ads) charts.ads.destroy();
+
   charts.ads = new Chart(ctx, {
     type: "bar",
     data: {
@@ -1774,7 +2243,8 @@ function renderAdDepthChart() {
       animation: {
         duration: 1200,
         easing: "easeOutQuart",
-        delay: (context) => context.dataIndex * 100,
+        delay: (context) =>
+          context.type === "data" ? context.dataIndex * 100 : 0,
       },
       plugins: {
         legend: {
@@ -2061,7 +2531,10 @@ function renderFrictionChart() {
       animation: {
         duration: 1000,
         easing: "easeOutQuart",
-        delay: (context) => context.dataIndex * (isCompare ? 50 : 100),
+        delay: (context) =>
+          context.type === "data"
+            ? context.dataIndex * (isCompare ? 50 : 100)
+            : 0,
       },
       plugins: {
         legend: {
@@ -2121,8 +2594,67 @@ function renderFrictionChart() {
   });
 }
 
-function saveToDatabase() {
-  document.getElementById("confirm-modal").classList.remove("hidden");
+async function saveToDatabase() {
+  // Get the current injection context
+  const { game, gameShortName, version, day, platform } = activeInjection;
+  const dataArray = lastData;
+
+  if (!game || !version || !day || !dataArray) {
+    console.warn("Missing required fields for save");
+    showResultPopup(false, "Missing required fields");
+    return;
+  }
+
+  // Hide confirm modal
+  document.getElementById("confirm-modal").classList.add("hidden");
+
+  // Show loading state (optional - you can add a loading modal)
+  // document.getElementById("loading-modal").classList.remove("hidden");
+
+  try {
+    const finalArray = [];
+    const requestBody = buildKpiRequestBody(
+      game,
+      version,
+      day,
+      dataArray,
+      platform,
+    );
+    finalArray.push(requestBody);
+
+    const finalFormat = {
+      gameData: finalArray,
+    };
+
+    const r = await saveGameVersionKpiData(finalFormat);
+
+    // Reset button state
+    const confirmBtn = document.querySelector("#confirm-modal .bg-blue-600");
+    if (confirmBtn) {
+      confirmBtn.innerText = "Confirm";
+      confirmBtn.disabled = false;
+    }
+
+    if (r.success) {
+      // Show success popup with details
+      showResultPopup(true, game, gameShortName, version, day);
+    } else {
+      // Show failure popup
+      showResultPopup(
+        false,
+        game,
+        gameShortName,
+        version,
+        day,
+        r.message || "Failed to save data",
+      );
+    }
+
+    console.log("Save result:", r.success, r);
+  } catch (error) {
+    console.error("Error saving to database:", error);
+    showResultPopup(false, game, gameShortName, version, day, error.message);
+  }
 }
 
 function executeDummyPush(event) {
@@ -2151,15 +2683,39 @@ function executeDummyPush(event) {
 }
 
 function validateInjection() {
-  const data = document.getElementById("inject-textarea").value.trim();
+  const textarea = document.getElementById("inject-textarea");
+  const data = textarea ? textarea.value.trim() : "";
   const btn = document.getElementById("inject-btn");
-  // Tooltip visibility is now handled by CSS :has(button[disabled]) for consistency
-  if (
-    activeInjection.game &&
-    activeInjection.version &&
-    activeInjection.day &&
-    data
-  ) {
+  const warning = document.getElementById("override-warning");
+
+  const { game, version, day } = activeInjection;
+  const isFiltersSelected = game && version && day;
+
+  // 1. Warning Logic: Check database existence immediately upon filter selection
+  if (isFiltersSelected) {
+    // True if the version was pulled from the backend originally
+    const isExistingBackendVersion =
+      STUDIO_GAMES[game] &&
+      STUDIO_GAMES[game].versions &&
+      STUDIO_GAMES[game].versions.includes(version);
+    // True if already cached in local preview
+    const isInMockDb = MOCK_DATABASE.hasOwnProperty(
+      `${game}_${version}_${day}`,
+    );
+
+    if (isExistingBackendVersion || isInMockDb) {
+      if (warning) warning.classList.remove("hidden");
+    } else {
+      if (warning) warning.classList.add("hidden");
+    }
+  } else {
+    if (warning) warning.classList.add("hidden");
+  }
+
+  // 2. Button Logic: Require data to enable "Add to Dashboard Preview"
+  const isReady = isFiltersSelected && data;
+
+  if (isReady) {
     btn.disabled = false;
     btn.classList.replace("bg-slate-200", "bg-slate-900");
     btn.classList.replace("text-slate-400", "text-white");
@@ -2176,6 +2732,12 @@ window.onload = () => {
   document
     .getElementById("inject-textarea")
     .addEventListener("input", validateInjection);
+
+  // Restore dashboard mode from local storage
+  const savedMode = localStorage.getItem("dashboardMode") || "single";
+  if (savedMode === "compare") {
+    setDashboardMode("compare", true);
+  }
 };
 
 function initNavSwitcher() {
@@ -2191,7 +2753,7 @@ function initNavSwitcher() {
       <div class="nav-item ${isSelected ? "selected" : ""}" data-search="${key.toLowerCase()}" onclick="pickOption('GAME', '${key}', 'base'); toggleDropdown('nav-dropdown');">
         <img src="${data.icon}" alt="${key}" />
         <p>${data.shortName || key}</p>
-        <div class="platform-icon-wrap"><i class="fab fa-${platformIcon} ${platformIcon === "android" ? "text-emerald-500" : "text-slate-400"} text-[10px]"></i></div>
+        <div class="platform-icon-wrap"><i class="fab fa-${platformIcon} ${platformIcon === "android" ? "text-emerald-500" : "text-slate-400"} text-[12px]"></i></div>
       </div>`;
     })
     .join("");
@@ -2208,6 +2770,7 @@ function filterNavGames() {
     item.style.display = isMatch ? "flex" : "none";
   });
 }
+
 function filterSlotGames(index) {
   const container = document.getElementById(`sd-g-${index}`);
   const query = container.querySelector("input").value.toLowerCase();
@@ -2222,51 +2785,220 @@ function filterSlotGames(index) {
 }
 
 function toggleDropdown(id) {
-  // Close other open dropdowns first
+  const dropdown = document.getElementById(id);
+  const isCurrentlyHidden = dropdown.classList.contains("hidden");
+
+  // Close other dropdowns and safely reverse any active arrow animations
   document.querySelectorAll(".dropdown-content").forEach((d) => {
     if (d.id !== id) d.classList.add("hidden");
   });
+  document
+    .querySelectorAll(
+      "nav .fa-chevron-down, #comp-slots-container .fa-chevron-down",
+    )
+    .forEach((icon) => {
+      icon.classList.remove("chevron-rotate");
+    });
 
-  const dropdown = document.getElementById(id);
-  dropdown.classList.toggle("hidden");
+  dropdown.classList.toggle("hidden", !isCurrentlyHidden);
 
-  if (id === "nav-dropdown" && !dropdown.classList.contains("hidden")) {
-    document.getElementById("nav-search").focus();
+  // Synchronize targeted selector arrow rotation state
+  if (isCurrentlyHidden) {
+    const parentContainer = dropdown.closest(".relative");
+    const activeChevron = parentContainer?.querySelector(".fa-chevron-down");
+    if (activeChevron) activeChevron.classList.add("chevron-rotate");
+
+    if (id === "nav-dropdown") {
+      setTimeout(() => document.getElementById("nav-search").focus(), 30);
+    }
   }
 }
+function getBenchmarkTagsHTML(gameName, version) {
+  if (!BENCHMARK_MAP[gameName]) return "";
+  const wonDays = [];
+  if (BENCHMARK_MAP[gameName]["D0"] === String(version)) wonDays.push("D0");
+  if (BENCHMARK_MAP[gameName]["D7"] === String(version)) wonDays.push("D7");
+  if (BENCHMARK_MAP[gameName]["D30"] === String(version)) wonDays.push("D30");
 
-function initVersionSwitcher(gameName) {
+  if (wonDays.length > 0) {
+    return `<span class="ml-auto flex items-center gap-1 bg-amber-50 border border-amber-200/60 text-amber-600 text-[10px] px-2 py-0.5 rounded-md font-black tracking-wider shadow-sm shrink-0"><i class="fas fa-crown text-[9px]"></i> ${wonDays.join(", ")}</span>`;
+  }
+  return "";
+}
+
+async function processBenchmarks(gameName) {
+  const versions = metadata.versions[gameName] || [];
+  if (versions.length === 0) return;
+
+  const platform = STUDIO_GAMES[gameName]?.platform || "android";
+  const query = [
+    { game: gameName, day: "D0", versions: versions, platform },
+    { game: gameName, day: "D7", versions: versions, platform },
+    { game: gameName, day: "D30", versions: versions, platform },
+  ];
+
+  try {
+    // 1. Silent Background Fetch for all versions of this game
+    const result = await fetchGameVersionKpiData(query);
+    await addServerDataToMockDatabase(result);
+  } catch (e) {
+    console.warn("Silent benchmark fetch failed", e);
+  }
+
+  // 2. Calculate Benchmark Winners (Index 12 is AAPU)
+  BENCHMARK_MAP[gameName] = { D0: null, D7: null, D30: null };
+
+  ["D0", "D7", "D30"].forEach((day) => {
+    let maxAapu = -1;
+    let bestVersion = null;
+
+    // Check MOCK_DATABASE to include both server data and freshly injected live-test data
+    const allPossibleVersions = new Set([...versions]);
+    Object.keys(MOCK_DATABASE).forEach((key) => {
+      // Safe parsing to support game names that might contain underscores
+      const parts = key.split("_");
+      if (parts.length >= 3) {
+        const d = parts.pop();
+        const v = parts.pop();
+        const g = parts.join("_");
+        if (g === gameName && d === day) allPossibleVersions.add(v);
+      }
+    });
+
+    allPossibleVersions.forEach((v) => {
+      const data = MOCK_DATABASE[`${gameName}_${v}_${day}`];
+      if (data && data[12] !== undefined) {
+        const aapu = parseFloat(data[12]);
+        if (aapu > maxAapu) {
+          maxAapu = aapu;
+          bestVersion = v;
+        }
+      }
+    });
+    BENCHMARK_MAP[gameName][day] = bestVersion;
+  });
+
+  // 3. Trigger Dropdown UI Refreshes if they belong to this game
+  if (baseSelection.game === gameName) {
+    const queryStr = document.getElementById("nav-version-search")?.value || "";
+    initVersionSwitcher(gameName, queryStr);
+    // Live update the selected text in case a crown arrived from backend
+    if (baseSelection.version) {
+      const tags = getBenchmarkTagsHTML(
+        gameName,
+        baseSelection.version,
+      ).replace("ml-auto", "");
+      const nvSpan = document.getElementById("nav-current-version");
+      if (nvSpan)
+        nvSpan.innerHTML = `<span class="flex items-center gap-1.5">${baseSelection.version} ${tags}</span>`;
+    }
+  }
+
+  selectionSlots.forEach((slot, index) => {
+    if (slot.game === gameName) {
+      const queryStr =
+        document.getElementById(`slot-v-search-${index}`)?.value || "";
+      updateSlotVersionUI(index, queryStr);
+      // Live update the specific slot text without collapsing the dropdown
+      if (slot.version) {
+        const tags = getBenchmarkTagsHTML(gameName, slot.version).replace(
+          "ml-auto",
+          "",
+        );
+        const span = document.getElementById(`slot-v-text-${index}`);
+        if (span) span.innerHTML = `${slot.version} ${tags}`;
+      }
+    }
+  });
+}
+function initDaySwitcher(gameName, version) {
+  const list = document.getElementById("nav-day-list");
+  const btn = document.getElementById("btn-base-day");
+
+  if (!gameName || !version) {
+    btn.disabled = true;
+    document.getElementById("nav-current-day").innerText = "Select Day";
+    return;
+  }
+
+  btn.disabled = false;
+
+  const defaultDays = ["D0", "D7", "D30"];
+  const isBackendVersion =
+    STUDIO_GAMES[gameName] &&
+    STUDIO_GAMES[gameName].versions &&
+    STUDIO_GAMES[gameName].versions.includes(version);
+
+  let daysToShow = defaultDays;
+
+  if (!isBackendVersion) {
+    // It's a TEMP game/version: Only show what has been manually injected
+    const availableDays = defaultDays.filter(
+      (d) => MOCK_DATABASE[`${gameName}_${version}_${d}`],
+    );
+    if (availableDays.length > 0) daysToShow = availableDays;
+  }
+
+  list.innerHTML = daysToShow
+    .map(
+      (d) => `
+    <button class="list-item !min-h-[40px] !text-[13px] !justify-center ${baseSelection.day === d ? "selected" : ""}"
+      onclick="pickOption('DAY', '${d}', 'base'); toggleDropdown('nav-day-dropdown');">
+      ${d.replace("D", "Day ")}
+    </button>
+  `,
+    )
+    .join("");
+}
+
+function initVersionSwitcher(gameName, query = "") {
   const list = document.getElementById("nav-version-list");
-  const versions = [...(metadata.versions[gameName] || [])].reverse(); // Show latest first
+  if (!gameName) return;
+  const baseVersions = [...(metadata.versions[gameName] || [])].reverse(); // Show latest first
   const btn = document.getElementById("btn-base-version");
 
-  if (btn) btn.disabled = versions.length === 0;
+  // Hoist benchmark versions to the top
+  const bmVersions = baseVersions.filter(
+    (v) => getBenchmarkTagsHTML(gameName, v) !== "",
+  );
+  const normalVersions = baseVersions.filter(
+    (v) => getBenchmarkTagsHTML(gameName, v) === "",
+  );
+  let versions = [...bmVersions, ...normalVersions];
+
+  if (query) {
+    versions = versions.filter((v) =>
+      v.toLowerCase().includes(query.toLowerCase()),
+    );
+  }
+
+  // Disable button if completely empty, but not if just searching
+  if (btn) btn.disabled = versions.length === 0 && !query;
 
   if (versions.length === 0) {
     list.innerHTML =
-      '<p class="text-[10px] text-slate-400 text-center py-4">No versions added</p>';
-    document.getElementById("nav-current-version").innerText = "None Selected";
+      '<p class="text-[10px] text-slate-400 text-center py-4 w-full">No versions found</p>';
+    if (!query)
+      document.getElementById("nav-current-version").innerText =
+        "None Selected";
     return;
   }
 
   list.innerHTML = versions
     .map(
       (v) => `
-    <button class="list-item text-xs" data-search="${v}" onclick="pickOption('VERSION', '${v}', 'base'); toggleDropdown('nav-version-dropdown');">${v}</button>
+    <button class="list-item !w-auto !min-h-[40px] !text-[13px] flex justify-between items-center gap-4 !px-4 ${baseSelection.version === v ? "selected" : ""}" data-search="${v}" onclick="pickOption('VERSION', '${v}', 'base'); toggleDropdown('nav-version-dropdown');">
+      <span class="truncate font-bold">${v}</span>
+      ${getBenchmarkTagsHTML(gameName, v)}
+    </button>
   `,
     )
     .join("");
 }
 
 function filterNavVersions() {
-  const query = document
-    .getElementById("nav-version-search")
-    .value.toLowerCase();
-  const items = document.querySelectorAll("#nav-version-list .list-item");
-  items.forEach((item) => {
-    const searchContext = item.getAttribute("data-search");
-    item.style.display = searchContext.includes(query) ? "flex" : "none";
-  });
+  const query = document.getElementById("nav-version-search").value;
+  initVersionSwitcher(baseSelection.game, query);
 }
 
 function filterSlotVersions(index) {
@@ -2281,12 +3013,55 @@ function syncNavSwitcher(gameName) {
   const iconImg = document.getElementById("nav-current-icon");
   const nameSpan = document.getElementById("nav-current-game");
 
-  iconImg.src = data.icon;
+  iconImg.src = data.icon || "https://via.placeholder.com/32";
   iconImg.classList.remove("hidden");
-  nameSpan.innerText = data.shortName || gameName.replace(/\s*ios\s*$/i, "");
+
+  const fullName = gameName.replace(/\s*ios\s*$/i, "");
+  const isAndroid =
+    data.platforms?.includes("android") || data.platform === "android";
+  const pIcon = isAndroid
+    ? '<i class="fab fa-android text-emerald-500 text-[11px] ml-2"></i>'
+    : '<i class="fab fa-apple text-slate-400 text-[11px] ml-2"></i>';
+
+  nameSpan.innerHTML = `${fullName}${pIcon}`;
 
   // Update Version dropdown for this game
   initVersionSwitcher(gameName);
+}
+
+function clearDashboard() {
+  // Reset all tab views to show placeholder messages
+  document.getElementById("view-overview").className =
+    "tab-view min-h-[400px] flex items-center justify-center";
+  document.getElementById("view-overview").innerHTML =
+    `<p class="text-slate-400 font-medium italic">Select a Game, Version, and Day to view primary growth KPIs and retention health.</p>`;
+
+  document.getElementById("view-retention").className =
+    "tab-view hidden min-h-[400px] flex items-center justify-center";
+  document.getElementById("view-retention").innerHTML =
+    `<p class="text-slate-400 font-medium italic">Select a Game, Version, and Day to track user drop-off progression across levels.</p>`;
+
+  document.getElementById("view-ads").className =
+    "tab-view hidden min-h-[400px] flex items-center justify-center";
+  document.getElementById("view-ads").innerHTML =
+    `<p class="text-slate-400 font-medium italic">Select a Game, Version, and Day to analyze ad-watching behavior and revenue milestones.</p>`;
+
+  document.getElementById("view-performance").className =
+    "tab-view hidden min-h-[400px] flex items-center justify-center";
+  document.getElementById("view-performance").innerHTML =
+    `<p class="text-slate-400 font-medium italic">Select a Game, Version, and Day to pinpoint level-based churn and gameplay bottlenecks.</p>`;
+
+  document.getElementById("view-dataset").className =
+    "tab-view hidden min-h-[400px] flex items-center justify-center";
+  document.getElementById("view-dataset").innerHTML =
+    `<p class="text-slate-400 font-medium italic">Select a Game, Version, and Day to view the consolidated raw metrics.</p>`;
+
+  // Hide game header
+  document.getElementById("game-header")?.classList.add("hidden");
+
+  // Reset lastData
+  lastData = null;
+  lastCompLayers = null;
 }
 
 window.addEventListener("click", (e) => {
@@ -2301,7 +3076,7 @@ window.addEventListener("click", (e) => {
     target.classList.add("hidden");
   }
 
-  // 2. Close Dropdowns on Outside Click
+  // 2. Close Dropdowns on Outside Click and reset chevron spin status
   if (
     !target.closest(".group") &&
     !target.closest(".dropdown-content") &&
@@ -2310,5 +3085,18 @@ window.addEventListener("click", (e) => {
     document
       .querySelectorAll(".dropdown-content, .slot-dropdown")
       .forEach((d) => d.classList.add("hidden"));
+    document
+      .querySelectorAll(
+        "nav .fa-chevron-down, #comp-slots-container .fa-chevron-down",
+      )
+      .forEach((icon) => icon.classList.remove("chevron-rotate"));
+    document
+      .querySelectorAll(
+        "#comp-slots-container button[onclick^='toggleSlotDropdown']",
+      )
+      .forEach((btn) => {
+        btn.classList.remove("bg-slate-100", "border-blue-300");
+        btn.classList.add("bg-white", "border-slate-200");
+      });
   }
 });
