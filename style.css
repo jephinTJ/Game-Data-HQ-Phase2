@@ -224,17 +224,18 @@ main {
 }
 /* Custom Scrollbar for modern look */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 10px;
+  background: #e2e8f0;
+  border-radius: 100px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #cbd5e1;
 }
 /* Modern Premium Select */
 .custom-select {
@@ -392,28 +393,29 @@ main {
   align-items: center;
   justify-content: flex-start;
   padding: 0 16px;
-  margin: 0 !important; /* Prevents stray margins causing vertical shifts */
+  margin: 0 !important;
   border-radius: 12px;
-  background: #f8fafc;
+  background: #ffffff;
   color: #475569;
   font-weight: 600;
   font-size: 13px;
   transition: all 0.2s ease;
-  border: 2px solid transparent;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02);
   box-sizing: border-box;
   outline: none;
   cursor: pointer;
   white-space: nowrap;
-  /* Ultimate protection against unwanted dots/bullets */
   list-style: none !important;
   list-style-type: none !important;
   list-style-image: none !important;
 }
 
 .list-item:hover {
-  background: #f1f5f9;
+  background: #f8fafc;
   color: #1e293b;
-  border-color: #e2e8f0;
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 6px rgba(15, 23, 42, 0.04);
 }
 
 .list-item.selected {
@@ -643,10 +645,17 @@ main {
 /* Quick Switcher Custom Scrollbar */
 #nav-game-list::-webkit-scrollbar {
   width: 4px;
+  height: 4px;
+}
+#nav-game-list::-webkit-scrollbar-track {
+  background: transparent;
 }
 #nav-game-list::-webkit-scrollbar-thumb {
   background: #e2e8f0;
-  border-radius: 10px;
+  border-radius: 100px;
+}
+#nav-game-list::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
 }
 
 /* Nav Grid Layout (Style B) */
@@ -660,10 +669,11 @@ main {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #f8fafc;
+  background: #ffffff;
   padding: 0 12px;
   border-radius: 14px;
-  border: 2px solid transparent;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02);
   cursor: pointer;
   transition: all 0.2s ease;
   height: 48px;
@@ -672,9 +682,9 @@ main {
 }
 
 .nav-item:hover {
-  background: #f1f5f9;
-  border-color: #e2e8f0;
-  transform: translateY(-1px);
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 6px rgba(15, 23, 42, 0.04);
 }
 
 .nav-item.selected {
@@ -776,22 +786,59 @@ main {
 }
 
 /* "Emerging" animation: pops out from the center of the button */
-@keyframes dropdownElastic {
+@keyframes dropdownPopOut {
   0% {
     opacity: 0;
-    transform: translateX(-50%) scale(0.4) translateY(-40px);
-    filter: blur(10px);
+    transform: translateX(-50%) scale(0.88) translateY(-10px);
   }
   100% {
     opacity: 1;
     transform: translateX(-50%) scale(1) translateY(0);
-    filter: blur(0);
   }
 }
 
-.animate-dropdown {
+.dropdown-content:not(.hidden) {
+  animation: dropdownPopOut 0.16s cubic-bezier(0.25, 1, 0.5, 1) both;
   transform-origin: top center;
-  animation: dropdownElastic 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Fluid Chevron Rotation Transition Engine */
+nav .fa-chevron-down,
+#comp-slots-container .fa-chevron-down {
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  will-change: transform;
+}
+
+.chevron-rotate {
+  transform: rotate(180deg) !important;
+}
+
+/* Premium Filter Dropdown Entrance Animation */
+.dropdown-content:not(.hidden) {
+  animation: filterDropdownReveal 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transform-origin: top center;
+}
+
+@keyframes filterDropdownReveal {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.96) translateY(-6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1) translateY(0);
+  }
+}
+
+/* Fluid Chevron Rotation Transition Engine */
+nav .fa-chevron-down,
+#comp-slots-container .fa-chevron-down {
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  will-change: transform;
+}
+
+.chevron-rotate {
+  transform: rotate(180deg) !important;
 }
 
 /* Blur only the dashboard content, keeping Nav sharp */
@@ -837,6 +884,33 @@ body:has(#comp-engine-dropdown:not(.hidden)) main {
   color: white;
   letter-spacing: -0.02em;
   transition: color 0.5s ease;
+}
+.is-text-icon::before {
+  content: "IS" !important;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif !important;
+  font-size: 10px !important;
+  font-weight: 900 !important;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.rv-text-icon::before {
+  content: "RV" !important;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif !important;
+  font-size: 10px !important;
+  font-weight: 900 !important;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .premium-card:hover .ad-text-icon::after {
@@ -900,8 +974,8 @@ body:has(#comp-engine-dropdown:not(.hidden)) main {
 }
 
 .slot-version-list {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr); /* Exactly 6 columns in one line */
+  display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   padding: 2px;
   overflow: visible; /* Pagination replaces scrolling */
@@ -909,9 +983,9 @@ body:has(#comp-engine-dropdown:not(.hidden)) main {
 
 /* Fix overlap and width */
 .slot-version-list .list-item {
-  width: 100% !important;
+  width: auto !important;
   min-width: 0 !important;
-  padding: 0 4px !important;
+  padding: 0 12px !important;
   margin: 0 !important;
   height: 32px !important;
 }
