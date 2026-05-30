@@ -2821,20 +2821,28 @@ function renderFrictionChart() {
   };
 
   const getEfficiencyColors = (piData, layerIndex) => {
-    const rankedIndices = piData
+    // 1. Filter out nulls first so they don't consume rank positions
+    const validItems = piData
       .map((val, idx) => ({ val, idx }))
-      .sort((a, b) => b.val - a.val)
-      .map((item) => item.idx);
+      .filter((item) => item.val !== null)
+      .sort((a, b) => b.val - a.val);
 
-    let colors = new Array(6);
-    const alpha = 1 - layerIndex * 0.15; // Layer variants: 100%, 85%, 70%, 55%
+    // 2. Initialize array with transparent fill for NA slots
+    let colors = new Array(piData.length).fill("rgba(0,0,0,0)");
+    const alpha = 1 - layerIndex * 0.15;
 
-    rankedIndices.forEach((originalIdx, rank) => {
-      const hex = colorMap[rank];
+    validItems.forEach((item, rank) => {
+      // 3. Map valid items proportionally to the 0-5 color spectrum
+      const colorIdx =
+        validItems.length > 1
+          ? Math.floor(rank * (5 / (validItems.length - 1)))
+          : 0;
+
+      const hex = colorMap[colorIdx];
       const r = parseInt(hex.slice(1, 3), 16);
       const g = parseInt(hex.slice(3, 5), 16);
       const b = parseInt(hex.slice(5, 7), 16);
-      colors[originalIdx] = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+      colors[item.idx] = `rgba(${r}, ${g}, ${b}, ${alpha})`;
     });
     return colors;
   };
