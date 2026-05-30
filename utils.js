@@ -91,10 +91,13 @@ async function fetchKpiFromDB(gameName, version, day, platform, isMulti = []) {
       const result = await fetchGameVersionKpiData(isMulti);
       const r = await addServerDataToMockDatabase(result);
     } else {
+      // Decode the UI-specific dictionary key back to the raw database name
+      const actualGameName = STUDIO_GAMES[gameName]?.name || gameName;
+
       const query = [
         {
           date: new Date(),
-          game: gameName,
+          game: actualGameName,
           day: day,
           versions: [version],
           platform: platform,
@@ -254,7 +257,23 @@ async function addServerDataToMockDatabase(serverData) {
         const dValue = actualItem[dProp];
         if (!dValue) continue;
 
-        const key = `${actualItem.game}_${actualItem.version}_${dProp}`;
+        let studioKey = actualItem.game;
+        const itemPlatform = String(actualItem.platform || "").toLowerCase();
+        if (itemPlatform === "ios") {
+          studioKey = `${actualItem.game} ios`;
+        } else if (itemPlatform === "android") {
+          studioKey = actualItem.game;
+        } else {
+          // Fallback parsing strategy checking system definitions
+          const foundKey = Object.keys(STUDIO_GAMES).find(
+            (k) =>
+              STUDIO_GAMES[k].name === actualItem.game &&
+              STUDIO_GAMES[k].versions.includes(String(actualItem.version)),
+          );
+          if (foundKey) studioKey = foundKey;
+        }
+
+        const key = `${studioKey}_${actualItem.version}_${dProp}`;
         let values = [];
 
         if (Array.isArray(dValue)) {
@@ -269,7 +288,22 @@ async function addServerDataToMockDatabase(serverData) {
 
         const parsedValues = values.map((v) => {
           const trimmed = String(v).trim();
-          const num = Number(trimmed);
+          if (
+            trimmed.toUpperCase() === "NA" ||
+            trimmed === "-" ||
+            trimmed === ""
+          )
+            return "NA";
+
+          // Aggressively strip commas, percentages, and time suffixes before numerical casting
+          const cleanString = trimmed
+            .replace(/,/g, "")
+            .replace(/%/g, "")
+            .replace(/\s*s$/i, "")
+            .replace(/\s*sec$/i, "")
+            .trim();
+          const num = Number(cleanString);
+
           if (!isNaN(num) && isFinite(num)) {
             return num;
           }
@@ -295,11 +329,12 @@ function convertActiveSlotsToRequestFormat(activeSlots) {
   const grouped = {};
 
   activeSlots.forEach((slot) => {
-    const key = `${slot.game}_${slot.day}`;
+    const rawGameName = STUDIO_GAMES[slot.game]?.name || slot.game;
+    const key = `${rawGameName}_${slot.day}_${slot.platform}`;
     if (!grouped[key]) {
       grouped[key] = {
         date: dateStr,
-        game: slot.game,
+        game: rawGameName,
         day: slot.day,
         versions: [],
         platform: slot.platform,
@@ -413,27 +448,21 @@ async function convertToStudioGamesFormat(gameData) {
   const STUDIO_GAMES_OBJ = {};
 
   gameData.forEach((game) => {
-    // If game already exists, merge versions instead of overwriting
-    if (STUDIO_GAMES_OBJ[game.name]) {
+    // Separate game library keys cleanly by name and platform variant to keep records distinct
+    const key = game.platform === "ios" ? `${game.name} ios` : game.name;
+
+    if (STUDIO_GAMES_OBJ[key]) {
       // Merge versions array (avoid duplicates)
-      const existingVersions = STUDIO_GAMES_OBJ[game.name].versions || [];
+      const existingVersions = STUDIO_GAMES_OBJ[key].versions || [];
       const newVersions = game.versions || [];
       const mergedVersions = [
         ...new Set([...existingVersions, ...newVersions]),
       ];
 
-      STUDIO_GAMES_OBJ[game.name].versions = mergedVersions;
-
-      // Merge platforms if needed
-      if (
-        game.platform &&
-        !STUDIO_GAMES_OBJ[game.name].platforms.includes(game.platform)
-      ) {
-        STUDIO_GAMES_OBJ[game.name].platforms.push(game.platform);
-      }
+      STUDIO_GAMES_OBJ[key].versions = mergedVersions;
     } else {
-      // New game - create entry
-      STUDIO_GAMES_OBJ[game.name] = {
+      // New standalone entry allocated per platform layer
+      STUDIO_GAMES_OBJ[key] = {
         name: game.name,
         displayName: game.displayName,
         shortName: game.shortName,
@@ -497,6 +526,12 @@ async function loadGameData() {
 
 // Call loadGameData immediately
 loadGameData();
+
+// Call loadGameData immediately
+loadGameData().then(() => {
+  // Warm up all game benchmarks in background after load
+  Object.keys(STUDIO_GAMES).forEach((game) => processBenchmarks(game));
+});
 
 function updateMetadataFromStudioGames() {
   metadata.games = Object.keys(STUDIO_GAMES);

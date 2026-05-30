@@ -277,7 +277,7 @@ function renderCompSlots() {
             <div class="flex-1">
               <button onclick="toggleSlotDropdown('VERSION', ${i}, 'sd-v-${i}', this)" ${!slot.game ? "disabled" : ""} class="w-full flex items-center gap-3 bg-white border border-slate-200 px-4 py-2.5 rounded-xl hover:border-blue-400 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
                 <div class="text-left flex-1 min-w-0">
-                  <p class="text-[9px] font-extrabold text-slate-500 uppercase tracking-tighter leading-none mb-1">Active Version</p>
+                  <p class="text-[9px] font-extrabold text-slate-500 uppercase tracking-tighter leading-none mb-1">Available Versions</p>
                   <div class="flex items-center gap-1.5 w-full">
                     <span id="slot-v-text-${i}" class="text-xs font-bold tracking-tight truncate text-slate-700 flex items-center gap-1.5">${slot.version || "None Selected"} ${slot.version ? getBenchmarkTagsHTML(slot.game, slot.version).replace("ml-auto", "") : ""}</span>
                     <i class="fas fa-chevron-down text-[10px] text-slate-400 shrink-0 ml-auto"></i>
@@ -372,6 +372,7 @@ function toggleSlotDropdown(type, index, id, btnElement) {
         </div>
         <div class="slot-game-list grid grid-cols-4 gap-2">` +
       Object.keys(STUDIO_GAMES)
+        .sort((a, b) => a.localeCompare(b))
         .map((key) => {
           const data = STUDIO_GAMES[key];
           const isSelected = state.game === key;
@@ -409,12 +410,18 @@ function toggleSlotDropdown(type, index, id, btnElement) {
 
     let daysToShow = defaultDays;
 
-    if (!isBackendVersion) {
-      // It's a TEMP game/version: Only show what has been manually injected
-      const availableDays = defaultDays.filter(
-        (d) => MOCK_DATABASE[`${state.game}_${state.version}_${d}`],
-      );
-      if (availableDays.length > 0) daysToShow = availableDays;
+    // Aggressively verify actual data presence in the cache, ignoring standard assumptions
+    const availableDays = defaultDays.filter(
+      (d) => MOCK_DATABASE[`${state.game}_${state.version}_${d}`],
+    );
+
+    if (availableDays.length > 0) {
+      daysToShow = availableDays;
+    } else if (!isBackendVersion) {
+      daysToShow = [];
+    } else if (isBackendVersion && availableDays.length === 0) {
+      // Failsafe override in case the silent API fetch is severely lagging
+      daysToShow = defaultDays;
     }
 
     content =
@@ -434,6 +441,7 @@ function toggleSlotDropdown(type, index, id, btnElement) {
   dropdown.innerHTML = content;
   dropdown.classList.remove("hidden");
   dropdown.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  syncDropdownBackdrop();
 }
 
 function updateSlotVersionUI(index, query = "") {
@@ -504,8 +512,11 @@ function changeSlotVersionPage(index, direction) {
 
 function addNewSlot() {
   if (selectionSlots.length >= 4) return;
+  // Initialize completely clean slot profiles instead of copying Layer A presets[cite: 2]
   selectionSlots.push({
-    game: selectionSlots[0].game,
+    game: null,
+    gameShortName: null,
+    platform: null,
     version: null,
     day: null,
     versionPage: 0,
@@ -569,7 +580,8 @@ function openSelection(type, context = "inject") {
   if (type === "GAME") {
     addBtn.classList.remove("hidden");
     addBtn.onclick = () => openInputModal("GAME", "selection", "");
-    list.innerHTML = metadata.games
+    list.innerHTML = [...metadata.games]
+      .sort((a, b) => a.localeCompare(b))
       .map((g) => {
         const data = STUDIO_GAMES[g];
         const isSelected = state.game === g;
@@ -602,7 +614,7 @@ function openSelection(type, context = "inject") {
     list.innerHTML = ["D0", "D7", "D30"]
       .map(
         (d) => `
-      <button class="list-item ${state.day === d ? "selected" : ""}" onclick="pickOption('DAY', '${d}', '${context}')">${d}</button>
+      <button class="list-item ${state.day === d ? "selected" : ""}" onclick="pickOption('DAY', '${d}', '${context}')">${d.replace("D", "Day ")}</button>
     `,
       )
       .join("");
@@ -663,10 +675,10 @@ function pickOption(type, value, context = "inject") {
         btn.innerHTML = `<i class="fas fa-code-branch opacity-60"></i> <span class="flex-1 text-left ml-2">${value}</span>`;
       } else {
         state.day = value;
-        btn.innerHTML = `<i class="fas fa-calendar-day opacity-60"></i> <span class="flex-1 text-left ml-2">${value}</span>`;
+        btn.innerHTML = `<i class="fas fa-calendar-day opacity-60"></i> <span class="flex-1 text-left ml-2">${value.replace("D", "Day ")}</span>`;
       }
     }
-    validateInjection();
+    if (typeof validateInjection === "function") validateInjection();
   } else if (context === "base") {
     if (type === "GAME") {
       processBenchmarks(value);
@@ -911,7 +923,8 @@ function syncAllDropdowns() {
     const grid = document.getElementById(`${id}-grid`);
     if (!grid) return;
     grid.innerHTML =
-      metadata.games
+      [...metadata.games]
+        .sort((a, b) => a.localeCompare(b))
         .map(
           (g) => `
       <div class="filter-item" data-value="${g}" onclick="selectOption('${id}', '${g}')">
@@ -1081,9 +1094,11 @@ function submitInputModal() {
       return; // Handled by validation lock
     }
 
-    if (!metadata.games.includes(nameVal)) {
+    const key = newGameSelectedPlatform === "ios" ? `${nameVal} ios` : nameVal;
+
+    if (!metadata.games.includes(key)) {
       // Inject directly into STUDIO_GAMES to preserve metadata mappings
-      STUDIO_GAMES[nameVal] = {
+      STUDIO_GAMES[key] = {
         name: nameVal,
         displayName: nameVal,
         shortName: shortVal,
@@ -1093,8 +1108,8 @@ function submitInputModal() {
         platforms: [newGameSelectedPlatform],
       };
 
-      metadata.games.push(nameVal);
-      metadata.versions[nameVal] = [];
+      metadata.games.push(key);
+      metadata.versions[key] = [];
 
       if (typeof syncAllDropdowns === "function") syncAllDropdowns();
       if (typeof initNavSwitcher === "function") initNavSwitcher();
@@ -1105,7 +1120,7 @@ function submitInputModal() {
       if (currentActiveSelect && currentActiveSelect.includes("comp"))
         context = "comp";
 
-      pickOption("GAME", nameVal, context);
+      pickOption("GAME", key, context);
     }
   } else {
     let val = document.getElementById("custom-input-field").value.trim();
@@ -1132,6 +1147,51 @@ function submitInputModal() {
   document.getElementById("input-modal").classList.add("hidden");
 }
 
+function openUploadModal() {
+  // 1. Reset all local injection memory
+  activeInjection = {
+    game: null,
+    version: null,
+    day: null,
+    platform: "Android",
+    gameShortName: null,
+  };
+  pendingRowData = null;
+
+  // 2. Clear text area
+  const textarea = document.getElementById("inject-textarea");
+  if (textarea) textarea.value = "";
+
+  // 3. Reset Game Button UI
+  const btnGame = document.getElementById("btn-select-game");
+  if (btnGame) {
+    btnGame.className = "status-btn empty";
+    btnGame.innerHTML = `<i class="fas fa-gamepad"></i> <span>Select Game</span>`;
+  }
+
+  // 4. Reset Version Button UI (Locked)
+  const btnVersion = document.getElementById("btn-select-version");
+  if (btnVersion) {
+    btnVersion.className = "status-btn empty w-full";
+    btnVersion.innerHTML = `<i class="fas fa-code-branch"></i> <span>Select Version</span>`;
+    btnVersion.disabled = true;
+  }
+
+  // 5. Reset Day Button UI
+  const btnDay = document.getElementById("btn-select-day");
+  if (btnDay) {
+    btnDay.className = "status-btn empty";
+    btnDay.innerHTML = `<i class="fas fa-calendar-day"></i> <span>Select Day</span>`;
+  }
+
+  // 6. Force validation check to hide old warnings instantly
+  if (typeof validateInjection === "function") validateInjection();
+
+  // 7. Reveal clean modal
+  const modal = document.getElementById("upload-modal");
+  if (modal) modal.classList.remove("hidden");
+}
+
 let pendingRowData = null;
 
 function previewData() {
@@ -1139,13 +1199,28 @@ function previewData() {
   const rawData = textarea.value.trim();
   if (!rawData) return;
 
-  const row = rawData
+  let row = rawData
     .split(/[\t\n\r]+/)
-    .map((val) => parseFloat(val.replace(/,/g, "").replace(/%/g, "")));
+    .map((val) => val.trim())
+    .filter((val) => val.length > 0)
+    .map((val) => {
+      const clean = val.toUpperCase();
+      if (clean === "NA" || clean === "-" || clean === "N/A") return "NA";
+      // Ensure 's' or 'sec' annotations are scrubbed out of pasted metrics
+      const num = parseFloat(
+        val
+          .replace(/,/g, "")
+          .replace(/%/g, "")
+          .replace(/\s*s$/i, "")
+          .replace(/\s*sec$/i, ""),
+      );
+      return isNaN(num) ? 0 : num;
+    });
 
   if (row.length < 34) {
-    alert(`⚠️ Error: Found ${row.length} KPIs, 34 expected.`);
-    return;
+    while (row.length < 34) {
+      row.push(0);
+    }
   }
 
   pendingRowData = row;
@@ -1169,8 +1244,14 @@ function finalizeInjection() {
       `${activeInjection.game}_${activeInjection.version}_${activeInjection.day}`
     ] = pendingRowData;
 
-    // Recalculate benchmarks in case this newly injected data is the winner
-    processBenchmarks(activeInjection.game);
+    EngineLoader.show(() => {
+      // Put your exact heavy calculation or fetching functions here
+      processBenchmarks(activeInjection.game);
+
+      // Call hide immediately after the execution logic finishes.
+      // The system will automatically calculate if it needs to wait to hit the 400ms minimum.
+      EngineLoader.hide();
+    });
 
     // Sync injection state to base selection
     baseSelection.game = activeInjection.game;
@@ -1198,8 +1279,300 @@ function finalizeInjection() {
   }
   document.getElementById("inject-success-modal").classList.add("hidden");
 }
+// --- In-Browser Python Pipeline V2 Engine ---
+let dp1Files = [];
+
+function openDp1Modal() {
+  dp1Files = [];
+  renderDp1FileList();
+  document.getElementById("dp1-file-input").value = ""; // Reset input
+  document.getElementById("dp1-modal").classList.remove("hidden");
+}
+
+function handleDp1Files(files) {
+  Array.from(files).forEach((f) => {
+    if (
+      f.name.endsWith(".csv") &&
+      dp1Files.length < 2 &&
+      !dp1Files.find((existing) => existing.name === f.name)
+    ) {
+      dp1Files.push(f);
+    }
+  });
+  renderDp1FileList();
+}
+
+function removeDp1File(index) {
+  dp1Files.splice(index, 1);
+  renderDp1FileList();
+  document.getElementById("dp1-file-input").value = "";
+}
+
+function renderDp1FileList() {
+  const list = document.getElementById("dp1-file-list");
+  const btn = document.getElementById("dp1-process-btn");
+
+  list.innerHTML = dp1Files
+    .map(
+      (f, i) => `
+    <div class="flex items-center justify-between bg-slate-50 border border-slate-200 p-3 rounded-xl animate-slide-up">
+      <div class="flex items-center gap-3 overflow-hidden">
+        <i class="fas fa-file-csv ${f.name.toLowerCase().includes("ad") ? "text-emerald-500" : "text-blue-500"} text-lg shrink-0"></i>
+        <span class="text-xs font-bold text-slate-700 truncate">${f.name}</span>
+      </div>
+      <button onclick="removeDp1File(${i})" class="text-slate-400 hover:text-rose-500 transition-colors px-2 py-1 shrink-0"><i class="fas fa-times"></i></button>
+    </div>
+  `,
+    )
+    .join("");
+
+  btn.disabled = dp1Files.length < 2;
+}
+
+async function parseCSVFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target.result;
+      const lines = text.split(/\r?\n/);
+      if (lines.length === 0) return resolve([]);
+
+      // Strip invisible BOM character and quote artifacts from headers
+      const cleanHeaderLine = lines[0].replace(/^\uFEFF/, "");
+      const headers = cleanHeaderLine
+        .split(",")
+        .map((h) => h.trim().replace(/^"|"$/g, "").toUpperCase());
+
+      const eventIdx = headers.indexOf("EVENT");
+      const usersIdx = headers.indexOf("USERS");
+      const amtIdx = headers.indexOf("EVENT AMOUNT");
+      const versionIdx = headers.indexOf("VERSION");
+
+      const data = [];
+      for (let i = 1; i < lines.length; i++) {
+        if (!lines[i].trim()) continue;
+
+        const cols = [];
+        let cur = "";
+        let inQuote = false;
+        for (let char of lines[i]) {
+          if (char === '"') inQuote = !inQuote;
+          else if (char === "," && !inQuote) {
+            cols.push(cur);
+            cur = "";
+          } else cur += char;
+        }
+        cols.push(cur);
+
+        if (eventIdx >= 0 && cols[eventIdx]) {
+          data.push({
+            EVENT: cols[eventIdx].replace(/^"|"$/g, "").trim(),
+            // Strip formatting commas from numbers before parseFloat to prevent "15,000" truncating to 15
+            USERS:
+              usersIdx >= 0 && cols[usersIdx]
+                ? parseFloat(
+                    cols[usersIdx]
+                      .replace(/^"|"$/g, "")
+                      .replace(/,/g, "")
+                      .trim(),
+                  ) || 0
+                : 0,
+            AMOUNT:
+              amtIdx >= 0 && cols[amtIdx]
+                ? parseFloat(
+                    cols[amtIdx].replace(/^"|"$/g, "").replace(/,/g, "").trim(),
+                  ) || 0
+                : 0,
+            VERSION:
+              versionIdx >= 0 && cols[versionIdx]
+                ? cols[versionIdx].replace(/^"|"$/g, "").trim()
+                : null,
+          });
+        }
+      }
+      resolve(data);
+    };
+    reader.onerror = reject;
+    reader.readAsText(file);
+  });
+}
+
+function calculateDP1(rawRetentionData, rawAdData) {
+  // Filter by Active Dashboard Version if the raw CSV contains multiple versions
+  const targetVersion = activeInjection.version;
+  let retentionData = rawRetentionData;
+  let adData = rawAdData;
+
+  if (targetVersion) {
+    if (rawRetentionData.some((r) => r.VERSION)) {
+      const exactMatch = rawRetentionData.filter(
+        (r) => r.VERSION === targetVersion,
+      );
+      if (exactMatch.length > 0) retentionData = exactMatch;
+    }
+    if (rawAdData.some((r) => r.VERSION)) {
+      const exactMatch = rawAdData.filter((r) => r.VERSION === targetVersion);
+      if (exactMatch.length > 0) adData = exactMatch;
+    }
+  }
+
+  // Case-insensitive mapping to mirror Python's flexibility
+  const getGameUsers = (df, candidates) => {
+    const match = df.find((r) =>
+      candidates.some((c) => r.EVENT.toLowerCase() === c.toLowerCase()),
+    );
+    return match ? match.USERS : "NA";
+  };
+
+  const getAdUsers = (df, patterns) => {
+    let matchFound = false;
+    let total = 0;
+    for (const pattern of patterns) {
+      const rows = df.filter((r) =>
+        r.EVENT.toLowerCase().endsWith(pattern.toLowerCase()),
+      );
+      if (rows.length > 0) {
+        matchFound = true;
+        total += rows.reduce((sum, r) => sum + r.USERS, 0);
+      }
+    }
+    return matchFound ? total : "NA";
+  };
+
+  const getLevelVariations = (prefix) => [
+    `${prefix} - levelStarted`,
+    `${prefix} - level_started`,
+    `${prefix} - level_start`,
+  ];
+
+  const levelMap = {
+    total_users: ["A - new_user", "A - newUser", "new_user"],
+    onboard_users: [
+      "H - level_completed",
+      "H - level_complete",
+      "H - level_start",
+      "H - level_started",
+      "H - levelStarted",
+    ],
+    20: getLevelVariations("B"),
+    50: getLevelVariations("C"),
+    70: getLevelVariations("D"),
+    100: getLevelVariations("E"),
+    150: getLevelVariations("F"),
+    200: getLevelVariations("G"),
+  };
+
+  const totalUsers = getGameUsers(retentionData, levelMap.total_users);
+  const onboardUsers = getGameUsers(retentionData, levelMap.onboard_users);
+
+  const metrics = new Array(34).fill(0);
+
+  // Index 0: Total Installs (Total Users)
+  metrics[0] = Math.floor(totalUsers);
+
+  // Index 13: Onboarded Users
+  metrics[13] = Math.floor(onboardUsers);
+
+  // Index 20: Install to Onboard %
+  metrics[20] = totalUsers > 0 ? (onboardUsers / totalUsers) * 100 : 0;
+
+  // Lvl Reach % (Index 1-6) and vs Onboard % (Index 14-19)
+  const levels = [20, 50, 70, 100, 150, 200];
+  levels.forEach((lvl, i) => {
+    const usersAtLevel = getGameUsers(retentionData, levelMap[lvl]);
+    metrics[1 + i] =
+      usersAtLevel === "NA" || totalUsers === "NA" || totalUsers === 0
+        ? "NA"
+        : (usersAtLevel / totalUsers) * 100;
+    metrics[14 + i] =
+      usersAtLevel === "NA" || onboardUsers === "NA" || onboardUsers === 0
+        ? "NA"
+        : (usersAtLevel / onboardUsers) * 100;
+  });
+
+  // Ads Reach % (Index 7-11)
+  const adLevels = [10, 20, 40, 70, 100];
+  adLevels.forEach((lvl, i) => {
+    const usersAtAd = getAdUsers(adData, [`ads_${lvl}`, `adShown_${lvl}`]);
+    metrics[7 + i] =
+      usersAtAd === "NA" || totalUsers === "NA" || totalUsers === 0
+        ? "NA"
+        : (usersAtAd / totalUsers) * 100;
+  });
+
+  // Index 12: Avg Ad per user (AAPU) -> Formula using Event Amount sum
+  if (totalUsers > 0) {
+    let totalAdEvents = 0;
+    adData.forEach((r) => {
+      const ev = r.EVENT.toLowerCase() || "";
+      const isInter = ev.includes("j") && ev.includes("inter");
+      const isReward = ev.includes("undefined") && ev.includes("reward");
+      if (isInter || isReward) {
+        totalAdEvents += r.AMOUNT;
+      }
+    });
+    metrics[12] = totalAdEvents / totalUsers;
+  }
+
+  // Format identical to template
+  return metrics
+    .map((val, idx) => {
+      if (val === "NA") return "NA";
+      if (val === 0) return "0";
+      const percentages = [
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 17, 18, 19, 20, 23, 24,
+        25, 26, 27,
+      ];
+      if (percentages.includes(idx)) return val.toFixed(2) + "%";
+      if (idx === 12) return val.toFixed(2); // AAPU
+      return Math.floor(val).toString(); // Base User counts
+    })
+    .join("\n");
+}
+
+async function processDp1Files() {
+  const btn = document.getElementById("dp1-process-btn");
+  btn.innerHTML =
+    '<i class="fas fa-spinner fa-spin mr-2"></i> Compiling Matrix...';
+  btn.disabled = true;
+
+  try {
+    const file1Data = await parseCSVFile(dp1Files[0]);
+    const file2Data = await parseCSVFile(dp1Files[1]);
+
+    // Smart file detection based on content
+    const isFile1Ad = file1Data.some(
+      (r) => r.EVENT.includes("adShown") || r.EVENT.includes("ads_"),
+    );
+
+    const adData = isFile1Ad ? file1Data : file2Data;
+    const retentionData = isFile1Ad ? file2Data : file1Data;
+
+    const finalMetrics = calculateDP1(retentionData, adData);
+
+    const textarea = document.getElementById("inject-textarea");
+    textarea.value = finalMetrics;
+
+    // Auto-trigger validation to unlock the Preview button
+    if (typeof validateInjection === "function") validateInjection();
+
+    document.getElementById("dp1-modal").classList.add("hidden");
+
+    btn.innerHTML = "Calculate & Inject";
+    dp1Files = [];
+    renderDp1FileList();
+  } catch (e) {
+    console.error(e);
+    alert(
+      "Pipeline Error: Could not compile CSV datasets. Ensure raw exports match standard DP1 configuration.",
+    );
+    btn.innerHTML = "Calculate & Inject";
+    btn.disabled = false;
+  }
+}
 
 const formatTime = (seconds) => {
+  if (typeof seconds !== "number" || isNaN(seconds)) return "—";
   const m = Math.floor(seconds / 60);
   const s = Math.floor(seconds % 60);
   return `${m}m ${s}s`;
@@ -1216,17 +1589,16 @@ const tailwindColors = {
   pink: { hex: "#ec4899", glass: "rgba(236, 72, 153, 0.12)" },
 };
 function getLayerLabel(index) {
-  if (dashboardMode !== "compare")
-    return `LAYER ${["A", "B", "C", "D"][index]}`;
+  const letter = ["A", "B", "C", "D"][index];
+  if (dashboardMode !== "compare") return letter;
   const activeSlots = selectionSlots.filter((s) => s.game && s.version);
-  if (index >= activeSlots.length)
-    return `LAYER ${["A", "B", "C", "D"][index]}`;
+  if (index >= activeSlots.length) return letter;
   const slot = activeSlots[index];
   const shortName = (
     STUDIO_GAMES[slot.game]?.shortName ||
     slot.game.replace(/\s*ios\s*$/i, "").substring(0, 6)
   ).toUpperCase();
-  return `${shortName} (v${slot.version} , ${slot.day})`;
+  return `${letter}: ${shortName} (v${slot.version} , ${slot.day})`;
 }
 const generateCard = (c, i, customId = "") => `
   <div ${customId ? `id="${customId}"` : ""} class="premium-card p-7 group" style="--card-color: ${tailwindColors[c.color].hex}; --card-tint: ${tailwindColors[c.color].glass}; animation-delay: ${i * 80}ms">
@@ -1251,6 +1623,7 @@ const generateCard = (c, i, customId = "") => `
   </div>`;
 
 const formatCValue = (val, idx) => {
+  if (typeof val !== "number" || isNaN(val)) return "—";
   if (idx === 0) return val.toLocaleString();
   if (
     idx === 27 ||
@@ -1279,6 +1652,24 @@ const generateOverviewCard = (c, i, compLayers, customId = "") => {
     .map((layer, idx) => {
       const compRaw = layer.data[c.index];
       const compValStr = formatCValue(compRaw, c.index);
+
+      // Hoist string verification block ahead of math operations to guarantee safety
+      if (
+        typeof baseRaw !== "number" ||
+        isNaN(baseRaw) ||
+        typeof compRaw !== "number" ||
+        isNaN(compRaw)
+      ) {
+        return `
+          <div class="py-2.5 border-b border-slate-200/50 last:border-0 last:pb-0 first:pt-0 flex flex-col justify-center">
+            <span class="text-[10px] font-bold tracking-widest text-slate-400 mb-1.5 leading-[1.1]">${getLayerLabel(idx + 1)}</span>
+            <div class="flex items-center justify-between gap-3">
+              <span class="text-[24px] font-black text-slate-800 tabular-nums leading-none tracking-tight">${compValStr}</span>
+              <span class="px-3 py-1 rounded-full text-[13px] font-black bg-slate-100 text-slate-500 border border-slate-200/60 shadow-none whitespace-nowrap tracking-tight leading-none">—</span>
+            </div>
+          </div>`;
+      }
+
       const isAbs = [
         1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 17, 18, 19, 20, 23, 24,
         25, 26, 27,
@@ -1302,7 +1693,7 @@ const generateOverviewCard = (c, i, compLayers, customId = "") => {
 
       let isPositive = c.invertDelta ? delta <= 0 : delta >= 0;
 
-      const dColorStyle = isPositive
+      let dColorStyle = isPositive
         ? "bg-emerald-500 text-white border border-emerald-600"
         : "bg-rose-500 text-white border border-rose-600";
 
@@ -1398,15 +1789,15 @@ function updateDashboardUI(data, compLayers = null) {
   document.getElementById("view-performance").className =
     "tab-view hidden space-y-8";
   document.getElementById("view-performance").innerHTML = `
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="performance-cards-container"></div>
-    <div class="premium-card p-8">
-      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-        <div><h4 class="text-lg font-bold text-slate-800" id="perf-chart-title">Friction Drop Analysis</h4><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Identifying Level Progression Bottlenecks</p></div>
-        <div class="flex items-center gap-4">
-          <div class="flex bg-slate-100 p-1 rounded-xl gap-1">
-            <button onclick="togglePerformanceMode('impact')" id="btn-perf-impact" class="px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all bg-white shadow-sm text-blue-600">Friction Drop</button>
-            <button onclick="togglePerformanceMode('efficiency')" id="btn-perf-efficiency" class="px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all text-slate-500 hover:text-slate-700">Group Performance</button>
-          </div>
+     <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="performance-cards-container"></div>
+     <div class="premium-card p-8">
+       <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+         <div><h4 class="text-lg font-bold text-slate-800" id="perf-chart-title">Friction Drop Analysis</h4><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Identifying Level Progression Bottlenecks</p></div>
+         <div class="flex items-center gap-4">
+           <div class="flex bg-slate-100 p-1 rounded-xl gap-1">
+             <button onclick="togglePerformanceMode('impact')" id="btn-perf-impact" class="px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${performanceMode === "impact" ? "bg-white shadow-sm text-blue-600" : "text-slate-500 hover:text-slate-700"}">Friction Drop</button>
+             <button onclick="togglePerformanceMode('efficiency')" id="btn-perf-efficiency" class="px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${performanceMode === "efficiency" ? "bg-white shadow-sm text-blue-600" : "text-slate-500 hover:text-slate-700"}">Group Performance</button>
+           </div>
           <div class="relative group">
             <button class="w-8 h-8 rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-blue-600 transition-all flex items-center justify-center"><i class="fas fa-info-circle"></i></button>
             <div class="absolute right-0 top-10 w-72 bg-slate-900 text-white text-[11px] p-6 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity z-50 shadow-2xl pointer-events-none leading-relaxed" id="perf-info-content"></div>
@@ -1431,10 +1822,19 @@ function updateDashboardUI(data, compLayers = null) {
     "retention-cards-container",
   );
 
+  const safeStr = (v) =>
+    typeof v !== "number" || isNaN(v) ? "—" : v.toLocaleString();
+  const safePct = (v) =>
+    typeof v !== "number" || isNaN(v) ? "—" : v.toFixed(2) + "%";
+  const safeDec = (v) =>
+    typeof v !== "number" || isNaN(v) ? "—" : v.toFixed(2);
+  const safeDec3 = (v) =>
+    typeof v !== "number" || isNaN(v) ? "—" : v.toFixed(3);
+
   const overviewCards = [
     {
       label: "Total Installs",
-      val: data[0].toLocaleString(),
+      val: safeStr(data[0]),
       rawVal: data[0],
       index: 0,
       icon: "fa-download",
@@ -1442,7 +1842,7 @@ function updateDashboardUI(data, compLayers = null) {
     },
     {
       label: "Return On Ad Spend",
-      val: data[27].toFixed(2) + "%",
+      val: safePct(data[27]),
       rawVal: data[27],
       index: 27,
       icon: "fa-hand-holding-dollar",
@@ -1450,7 +1850,7 @@ function updateDashboardUI(data, compLayers = null) {
     },
     {
       label: "Avg Ad per User",
-      val: data[12].toFixed(2),
+      val: safeDec(data[12]),
       rawVal: data[12],
       index: 12,
       icon: "fa-video relative ad-text-icon",
@@ -1458,7 +1858,7 @@ function updateDashboardUI(data, compLayers = null) {
     },
     {
       label: "Day 1 Retention",
-      val: data[23].toFixed(2) + "%",
+      val: safePct(data[23]),
       rawVal: data[23],
       index: 23,
       icon: "fa-calendar relative d1-text-icon",
@@ -1466,7 +1866,7 @@ function updateDashboardUI(data, compLayers = null) {
     },
     {
       label: "Day 3 Retention",
-      val: data[24].toFixed(2) + "%",
+      val: safePct(data[24]),
       rawVal: data[24],
       index: 24,
       icon: "fa-calendar relative d3-text-icon",
@@ -1490,7 +1890,7 @@ function updateDashboardUI(data, compLayers = null) {
     },
     {
       label: "Interstitial /user",
-      val: data[29].toFixed(3),
+      val: safeDec3(data[29]),
       rawVal: data[29],
       index: 29,
       icon: "fa-circle relative is-text-icon",
@@ -1498,7 +1898,7 @@ function updateDashboardUI(data, compLayers = null) {
     },
     {
       label: "Rewarded /user",
-      val: data[28].toFixed(3),
+      val: safeDec3(data[28]),
       rawVal: data[28],
       index: 28,
       icon: "fa-circle relative rv-text-icon",
@@ -1511,7 +1911,7 @@ function updateDashboardUI(data, compLayers = null) {
     isInstall
       ? {
           label: "Total Installs",
-          val: data[0].toLocaleString(),
+          val: safeStr(data[0]),
           rawVal: data[0],
           index: 0,
           icon: "fa-download",
@@ -1519,7 +1919,7 @@ function updateDashboardUI(data, compLayers = null) {
         }
       : {
           label: "Onboarded Users",
-          val: data[13].toLocaleString(),
+          val: safeStr(data[13]),
           rawVal: data[13],
           index: 13,
           icon: `<svg viewBox="0 0 24 24" fill="currentColor" style="width: 1.25em; height: 1.25em;"><path d="M4.5 3.5C3.5 3.5 2.5 4.3 2.5 5.3v13.4c0 1 1 1.8 2 1.8l7.5 1.7c.8.2 1.5-.4 1.5-1.2V3c0-.8-.7-1.4-1.5-1.2L4.5 3.5z"/><circle cx="9.5" cy="12" r="1.3" fill="white"/><path d="M23.5 10.5h-5.5v-2.5l-4 4 4 4v-2.5h5.5v-3z"/><path d="M15 2v2h4c.6 0 1 .4 1 1v14c0 .6-.4 1-1 1h-4v2h4c1.7 0 3-1.3 3-3V5c0-1.7-1.3-3-3-3h-4z"/></svg>`,
@@ -1527,7 +1927,7 @@ function updateDashboardUI(data, compLayers = null) {
         },
     {
       label: "Day 1 Retention",
-      val: data[23].toFixed(2) + "%",
+      val: safePct(data[23]),
       rawVal: data[23],
       index: 23,
       icon: "fa-calendar relative d1-text-icon",
@@ -1535,7 +1935,7 @@ function updateDashboardUI(data, compLayers = null) {
     },
     {
       label: "Day 3 Retention",
-      val: data[24].toFixed(2) + "%",
+      val: safePct(data[24]),
       rawVal: data[24],
       index: 24,
       icon: "fa-calendar relative d3-text-icon",
@@ -1546,7 +1946,7 @@ function updateDashboardUI(data, compLayers = null) {
   const adCards = [
     {
       label: "Return On Ad Spend",
-      val: data[27].toFixed(2) + "%",
+      val: safePct(data[27]),
       rawVal: data[27],
       index: 27,
       icon: "fa-hand-holding-dollar",
@@ -1554,7 +1954,7 @@ function updateDashboardUI(data, compLayers = null) {
     },
     {
       label: "Avg Ad per User",
-      val: data[12].toFixed(2),
+      val: safeDec(data[12]),
       rawVal: data[12],
       index: 12,
       icon: "fa-video relative ad-text-icon",
@@ -1562,7 +1962,7 @@ function updateDashboardUI(data, compLayers = null) {
     },
     {
       label: "User Ad Failure Rate",
-      val: data[25].toFixed(2) + "%",
+      val: safePct(data[25]),
       rawVal: data[25],
       index: 25,
       icon: "fa-user-slash",
@@ -1571,7 +1971,7 @@ function updateDashboardUI(data, compLayers = null) {
     },
     {
       label: "Ad Request Failure %",
-      val: data[26].toFixed(2) + "%",
+      val: safePct(data[26]),
       rawVal: data[26],
       index: 26,
       icon: "fa-video-slash relative ad-text-icon",
@@ -1583,7 +1983,7 @@ function updateDashboardUI(data, compLayers = null) {
   const performanceCards = [
     {
       label: "Install to Onboard %",
-      val: data[20].toFixed(2) + "%",
+      val: safePct(data[20]),
       rawVal: data[20],
       index: 20,
       icon: `<svg viewBox="0 0 24 24" fill="currentColor" style="width: 1.25em; height: 1.25em;"><path d="M4.5 3.5C3.5 3.5 2.5 4.3 2.5 5.3v13.4c0 1 1 1.8 2 1.8l7.5 1.7c.8.2 1.5-.4 1.5-1.2V3c0-.8-.7-1.4-1.5-1.2L4.5 3.5z"/><circle cx="9.5" cy="12" r="1.3" fill="white"/><path d="M23.5 10.5h-5.5v-2.5l-4 4 4 4v-2.5h5.5v-3z"/><path d="M15 2v2h4c.6 0 1 .4 1 1v14c0 .6-.4 1-1 1h-4v2h4c1.7 0 3-1.3 3-3V5c0-1.7-1.3-3-3-3h-4z"/></svg>`,
@@ -1631,10 +2031,14 @@ function renderDatasetTable() {
   const container = document.getElementById("dataset-container");
   if (!container) return;
 
-  const formatNum = (val) => val.toLocaleString();
-  const formatPct = (val) => val.toFixed(2) + "%";
-  const formatDec = (val) => val.toFixed(2);
-  const formatDec3 = (val) => val.toFixed(3);
+  const formatNum = (val) =>
+    typeof val !== "number" || isNaN(val) ? "—" : val.toLocaleString();
+  const formatPct = (val) =>
+    typeof val !== "number" || isNaN(val) ? "—" : val.toFixed(2) + "%";
+  const formatDec = (val) =>
+    typeof val !== "number" || isNaN(val) ? "—" : val.toFixed(2);
+  const formatDec3 = (val) =>
+    typeof val !== "number" || isNaN(val) ? "—" : val.toFixed(3);
 
   const tailwindColors = {
     blue: { hex: "#3b82f6", glass: "rgba(59, 130, 246, 0.08)" },
@@ -1760,6 +2164,24 @@ function renderDatasetTable() {
                 const compRaw = layer.data[m.idx];
                 const compVal = m.fmt(compRaw);
 
+                // Safe guard block intercepting operations to bypass mathematical subtraction failures on strings
+                if (
+                  typeof baseRaw !== "number" ||
+                  isNaN(baseRaw) ||
+                  typeof compRaw !== "number" ||
+                  isNaN(compRaw)
+                ) {
+                  return `
+                    <div class="flex-1 flex justify-center items-center px-1 border-l border-slate-200/60">
+                      <div class="relative w-full max-w-[80px] h-[32px] flex justify-center items-center rounded-lg transition-all duration-200 hover:bg-slate-100 hover:shadow-inner hover:scale-95 cursor-default group/cell">
+                        <span class="text-[11px] font-bold text-slate-700 group-hover/cell:text-slate-900 group-hover/cell:font-black transition-all tabular-nums">${compVal}</span>
+                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 opacity-0 group-hover/cell:opacity-100 transition-all duration-200 pointer-events-none z-[100] transform translate-y-2 group-hover/cell:translate-y-0 flex flex-col items-center drop-shadow-lg">
+                           <div class="px-3 py-1.5 rounded-xl text-[12px] font-black text-white bg-slate-500 whitespace-nowrap tracking-tight leading-none shadow-sm">—</div>
+                        </div>
+                      </div>
+                    </div>`;
+                }
+
                 const isAbs = [
                   1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 17, 18, 19, 20,
                   23, 24, 25, 26, 27,
@@ -1787,8 +2209,8 @@ function renderDatasetTable() {
 
                 let isPositive = m.invert ? delta <= 0 : delta >= 0;
 
-                const pillClass = isPositive ? "bg-emerald-500" : "bg-rose-500";
-                const arrowClass = isPositive
+                let pillClass = isPositive ? "bg-emerald-500" : "bg-rose-500";
+                let arrowClass = isPositive
                   ? "border-t-emerald-500"
                   : "border-t-rose-500";
 
@@ -1870,7 +2292,10 @@ function updateDynamicRetentionCard() {
   const cData = isInstall
     ? {
         label: "Total Installs",
-        val: lastData[0].toLocaleString(),
+        val:
+          typeof lastData[0] !== "number" || isNaN(lastData[0])
+            ? "—"
+            : lastData[0].toLocaleString(),
         rawVal: lastData[0],
         index: 0,
         icon: "fa-download",
@@ -1878,7 +2303,10 @@ function updateDynamicRetentionCard() {
       }
     : {
         label: "Onboarded Users",
-        val: lastData[13].toLocaleString(),
+        val:
+          typeof lastData[13] !== "number" || isNaN(lastData[13])
+            ? "—"
+            : lastData[13].toLocaleString(),
         rawVal: lastData[13],
         index: 13,
         icon: `<svg viewBox="0 0 24 24" fill="currentColor" style="width: 1.25em; height: 1.25em;"><path d="M4.5 3.5C3.5 3.5 2.5 4.3 2.5 5.3v13.4c0 1 1 1.8 2 1.8l7.5 1.7c.8.2 1.5-.4 1.5-1.2V3c0-.8-.7-1.4-1.5-1.2L4.5 3.5z"/><circle cx="9.5" cy="12" r="1.3" fill="white"/><path d="M23.5 10.5h-5.5v-2.5l-4 4 4 4v-2.5h5.5v-3z"/><path d="M15 2v2h4c.6 0 1 .4 1 1v14c0 .6-.4 1-1 1h-4v2h4c1.7 0 3-1.3 3-3V5c0-1.7-1.3-3-3-3h-4z"/></svg>`,
@@ -1940,11 +2368,12 @@ function renderRetentionChart() {
     dashboardMode === "compare" && lastCompLayers && lastCompLayers.length > 0;
   let datasets = [];
 
+  // Standardized line and fill color mappings matching the comparison ecosystem metrics
   const layerColors = [
-    { hex: "#83A95C", rgb: "131, 169, 92" },
-    { hex: "#944E6C", rgb: "148, 78, 108" },
-    { hex: "#433D3C", rgb: "67, 61, 60" },
-    { hex: "#3b82f6", rgb: "59, 130, 246" },
+    { hex: "#f59e0b", rgb: "245, 158, 11" }, // Layer A
+    { hex: "#83a95c", rgb: "131, 169, 92" }, // Layer B
+    { hex: "#944e6c", rgb: "148, 78, 108" }, // Layer C
+    { hex: "#433d3c", rgb: "67, 61, 60" }, // Layer D
   ];
 
   const createGradient = (ctx, chartArea, rgb) => {
@@ -1962,9 +2391,12 @@ function renderRetentionChart() {
 
   const addLayerDataset = (dataVals, layerIdx, customLabel = null) => {
     const color = layerColors[layerIdx];
+    const safeData = dataVals.map((v) =>
+      typeof v !== "number" || isNaN(v) ? null : v,
+    );
     datasets.push({
       label: customLabel || getLayerLabel(layerIdx),
-      data: dataVals,
+      data: safeData,
       borderColor: color.hex,
       borderWidth: 3,
       backgroundColor: (context) => {
@@ -2049,7 +2481,7 @@ function renderRetentionChart() {
           callbacks: {
             title: (ctxs) => (isCompare ? ctxs[0].label : ""),
             label: (ctx) =>
-              `${isCompare ? ctx.dataset.label : ctx.label}: ${ctx.raw.toFixed(2)}%`,
+              `${isCompare ? ctx.dataset.label : ctx.label}: ${ctx.raw === null ? "—" : ctx.raw.toFixed(2) + "%"}`,
           },
         },
       },
@@ -2090,10 +2522,10 @@ function renderAdDepthChart() {
   let datasets = [];
 
   const palette = [
-    { bg: "#84B179", hover: "#709c66", text: "text-white" },
-    { bg: "#A2CB8B", hover: "#8bb574", text: "text-slate-900" },
-    { bg: "#C7EABB", hover: "#b0d6a3", text: "text-slate-900" },
-    { bg: "#E8F5BD", hover: "#d1e0a6", text: "text-slate-900" },
+    { bg: "#e69200", hover: "#e69200", text: "text-white" },
+    { bg: "#709c66", hover: "#709c66", text: "text-white" },
+    { bg: "#8bb574", hover: "#8bb574", text: "text-slate-900" },
+    { bg: "#b0d6a3", hover: "#b0d6a3", text: "text-slate-900" },
   ];
 
   if (!isCompare) {
@@ -2112,13 +2544,13 @@ function renderAdDepthChart() {
             <tr class="group hover:bg-slate-50 transition-colors animate-slide-up" style="animation-fill-mode: both; animation-delay: ${150 + i * 80}ms">
               <td class="px-4 py-3 text-xs font-bold text-slate-600">${label}</td>
               <td class="px-4 py-3">
-                <div class="flex items-center gap-3">
-                  <span class="text-xs font-black text-slate-800">${values[i].toFixed(2)}%</span>
-                  <div class="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden max-w-[60px]">
-                    <div class="h-full rounded-full" style="width: ${values[i]}%; background-color: ${palette[0].bg};"></div>
-                  </div>
-                </div>
-              </td>
+                    <div class="flex items-center gap-3">
+                      <span class="text-xs font-black text-slate-800">${typeof values[i] !== "number" || isNaN(values[i]) ? "—" : values[i].toFixed(2) + "%"}</span>
+                      <div class="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden max-w-[60px]">
+                        <div class="h-full rounded-full" style="width: ${typeof values[i] !== "number" || isNaN(values[i]) ? 0 : values[i]}%; background-color: ${palette[0].bg};"></div>
+                      </div>
+                    </div>
+                  </td>
             </tr>
           `,
             )
@@ -2129,7 +2561,7 @@ function renderAdDepthChart() {
 
     datasets.push({
       label: "Reach %",
-      data: values,
+      data: values.map((v) => (typeof v !== "number" || isNaN(v) ? null : v)),
       backgroundColor: palette[0].bg,
       hoverBackgroundColor: palette[0].hover,
       borderRadius: 10,
@@ -2149,26 +2581,35 @@ function renderAdDepthChart() {
 
         let rowCols = `<td class="px-4 py-3 text-xs font-bold text-slate-500 border-b border-slate-100/50 sticky left-0 bg-white group-hover:bg-slate-50 group-hover:text-slate-900 transition-colors z-10">${label}</td>`;
 
+        const baseValid = typeof baseVal === "number" && !isNaN(baseVal);
+
         rowCols += `<td class="px-2 py-1.5 border-b border-l border-slate-100/50 text-center bg-slate-50/30">
           <div class="relative w-full h-full flex justify-center items-center py-2.5 rounded-xl transition-all duration-200 group-hover:bg-white">
-            <span class="text-xs font-black text-slate-800">${baseVal.toFixed(2)}%</span>
+            <span class="text-xs font-black text-slate-800">${!baseValid ? "—" : baseVal.toFixed(2) + "%"}</span>
           </div>
         </td>`;
 
         lastCompLayers.forEach((layer, lIdx) => {
           const compVal = layer.data[7 + idx];
-          let delta = compVal - baseVal;
-          const deltaStr =
-            delta > 0 ? `+${delta.toFixed(2)}pp` : `${delta.toFixed(2)}pp`;
+          let deltaStr = "—";
+          let pillClass = "bg-slate-500";
+          let arrowClass = "hidden";
 
-          const pillClass = delta >= 0 ? "bg-emerald-500" : "bg-rose-500";
-          const arrowClass =
-            delta >= 0 ? "border-t-emerald-500" : "border-t-rose-500";
+          const compValid = typeof compVal === "number" && !isNaN(compVal);
+
+          if (baseValid && compValid) {
+            let delta = compVal - baseVal;
+            deltaStr =
+              delta > 0 ? `+${delta.toFixed(2)}pp` : `${delta.toFixed(2)}pp`;
+            pillClass = delta >= 0 ? "bg-emerald-500" : "bg-rose-500";
+            arrowClass =
+              delta >= 0 ? "border-t-emerald-500" : "border-t-rose-500";
+          }
 
           rowCols += `
           <td class="px-2 py-1.5 border-b border-l border-slate-100/50 min-w-[90px] text-center">
             <div class="relative w-full h-full flex justify-center items-center py-2.5 rounded-xl transition-all duration-200 hover:bg-slate-100 hover:shadow-inner hover:scale-95 cursor-default group/cell">
-              <span class="text-xs font-bold text-slate-700 group-hover/cell:text-slate-900 group-hover/cell:font-black transition-all">${compVal.toFixed(2)}%</span>
+              <span class="text-xs font-bold text-slate-700 group-hover/cell:text-slate-900 group-hover/cell:font-black transition-all">${!compValid ? "—" : compVal.toFixed(2) + "%"}</span>
               
               <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 opacity-0 group-hover/cell:opacity-100 transition-all duration-200 pointer-events-none z-[100] transform translate-y-2 group-hover/cell:translate-y-0 flex flex-col items-center drop-shadow-lg">
                  <div class="px-4 py-2 rounded-xl text-[13px] font-black text-white ${pillClass} whitespace-nowrap tracking-tight leading-none shadow-sm">${deltaStr} <span class="font-bold opacity-90 text-[10px] ml-0.5"></span></div>
@@ -2215,7 +2656,9 @@ function renderAdDepthChart() {
     lastCompLayers.forEach((layer, i) => {
       datasets.push({
         label: getLayerLabel(i + 1),
-        data: layer.data.slice(7, 12),
+        data: layer.data
+          .slice(7, 12)
+          .map((v) => (typeof v !== "number" || isNaN(v) ? null : v)),
         backgroundColor: palette[i + 1].bg,
         hoverBackgroundColor: palette[i + 1].hover,
         borderWidth: 0,
@@ -2274,7 +2717,7 @@ function renderAdDepthChart() {
           callbacks: {
             title: (ctxs) => (isCompare ? ctxs[0].label : ""),
             label: (ctx) =>
-              `${isCompare ? ctx.dataset.label : ctx.label}: ${ctx.raw.toFixed(2)}%`,
+              `${isCompare ? ctx.dataset.label : ctx.label}: ${ctx.raw === null ? "—" : ctx.raw.toFixed(2) + "%"}`,
           },
         },
       },
@@ -2336,19 +2779,30 @@ function renderFrictionChart() {
 
   const calcData = (rawData) => {
     const reach = rawData.slice(14, 20);
-    const frictionDrop = [
-      reach[0],
-      ((reach[0] - reach[1]) / reach[0]) * 100,
-      ((reach[1] - reach[2]) / reach[1]) * 100,
-      ((reach[2] - reach[3]) / reach[2]) * 100,
-      ((reach[3] - reach[4]) / reach[3]) * 100,
-      ((reach[4] - reach[5]) / reach[4]) * 100,
+
+    const getDrop = (r1, r2) => {
+      if (
+        typeof r1 !== "number" ||
+        isNaN(r1) ||
+        typeof r2 !== "number" ||
+        isNaN(r2)
+      )
+        return null;
+      if (r1 === 0) return 0;
+      return ((r1 - r2) / r1) * 100;
+    };
+
+    const safeFrictionDrop = [
+      typeof reach[0] === "number" && !isNaN(reach[0]) ? reach[0] : null,
+      getDrop(reach[0], reach[1]),
+      getDrop(reach[1], reach[2]),
+      getDrop(reach[2], reach[3]),
+      getDrop(reach[3], reach[4]),
+      getDrop(reach[4], reach[5]),
     ];
-    const safeFrictionDrop = frictionDrop.map((v) =>
-      isNaN(v) || !isFinite(v) ? 0 : v,
-    );
+
     const piData = safeFrictionDrop.map((val, i) =>
-      Math.pow(Math.max(0, val) / 100, 1 / gaps[i]),
+      val === null ? null : Math.pow(Math.max(0, val) / 100, 1 / gaps[i]),
     );
     return { frictionDrop: safeFrictionDrop, piData };
   };
@@ -2416,7 +2870,6 @@ function renderFrictionChart() {
         fill: false,
         order: 1,
       });
-
       datasets.push({
         type: "bar",
         data: baseCalc.frictionDrop,
@@ -2425,7 +2878,6 @@ function renderFrictionChart() {
         barThickness: 55,
         order: 2,
       });
-
       tooltipLabel = "Friction Drop";
       yAxisLabel = (v) => v + "%";
     } else {
@@ -2437,13 +2889,12 @@ function renderFrictionChart() {
         barThickness: 55,
         order: 2,
       });
-
       tooltipLabel = "Efficiency Index";
       yAxisLabel = (v) => v.toFixed(3);
     }
   } else {
-    const slotLetters = ["B", "C", "D"];
-    const redPalette = ["#D96C6C", "#E68A8A", "#F2ABAB", "#FAD4D4"]; // Vibrant equivalent to the green palette
+    // High-contrast comparative theme array syncing with retention and overview palette systems
+    const highContrastPalette = ["#f59e0b", "#83A95C", "#944E6C", "#433D3C"];
 
     tooltipLabel =
       performanceMode === "impact" ? "Friction Drop" : "Efficiency Index";
@@ -2457,7 +2908,7 @@ function renderFrictionChart() {
         performanceMode === "impact" ? baseCalc.frictionDrop : baseCalc.piData,
       backgroundColor:
         performanceMode === "impact"
-          ? redPalette[0]
+          ? highContrastPalette[0]
           : getEfficiencyColors(baseCalc.piData, 0),
       borderRadius: 6,
       borderWidth: 0,
@@ -2474,7 +2925,7 @@ function renderFrictionChart() {
             : compCalc.piData,
         backgroundColor:
           performanceMode === "impact"
-            ? redPalette[i + 1]
+            ? highContrastPalette[(i + 1) % highContrastPalette.length]
             : getEfficiencyColors(compCalc.piData, i + 1),
         borderRadius: 6,
         borderWidth: 0,
@@ -2494,9 +2945,8 @@ function renderFrictionChart() {
         const meta = chart.getDatasetMeta(i);
         if (meta.hidden || dataset.type !== "bar") return;
 
-        const letter = isCompare
-          ? getLayerLabel(i).split(" ")[0]
-          : ["A", "B", "C", "D"][i];
+        // Use distinct, explicit slot designator letters matching the global comparison layout
+        const letter = ["A", "B", "C", "D"][i];
 
         ctx.save();
         ctx.textAlign = "center";
@@ -2564,6 +3014,8 @@ function renderFrictionChart() {
           callbacks: {
             title: (ctxs) => (isCompare ? ctxs[0].label : ""),
             label: (ctx) => {
+              if (ctx.raw === null)
+                return `${isCompare ? ctx.dataset.label : tooltipLabel}: —`;
               const val =
                 performanceMode === "impact"
                   ? ctx.raw.toFixed(2) + "%"
@@ -2588,6 +3040,9 @@ function renderFrictionChart() {
         x: {
           grid: { display: false },
           ticks: { font: { family: "Outfit", weight: "700", size: 11 } },
+          // Expand category and bar space usage to completely eliminate wide spacing gaps
+          categoryPercentage: 0.85,
+          barPercentage: 0.95,
         },
       },
     },
@@ -2687,12 +3142,55 @@ function validateInjection() {
   const data = textarea ? textarea.value.trim() : "";
   const btn = document.getElementById("inject-btn");
   const warning = document.getElementById("override-warning");
+  const partialWarning = document.getElementById("partial-kpi-warning");
+  const partialWarningText = document.getElementById(
+    "partial-kpi-warning-text",
+  );
 
   const { game, version, day } = activeInjection;
   const isFiltersSelected = game && version && day;
 
   // 1. Warning Logic: Check database existence immediately upon filter selection
   if (isFiltersSelected) {
+    // True if the version was pulled from the backend originally
+    const isExistingBackendVersion =
+      STUDIO_GAMES[game] &&
+      STUDIO_GAMES[game].versions &&
+      STUDIO_GAMES[game].versions.includes(version);
+    // True if already cached in local preview
+    const isInMockDb = MOCK_DATABASE.hasOwnProperty(
+      `${game}_${version}_${day}`,
+    );
+
+    if (isExistingBackendVersion || isInMockDb) {
+      if (warning) warning.classList.remove("hidden");
+    } else {
+      if (warning) warning.classList.add("hidden");
+    }
+  } else {
+    if (warning) warning.classList.add("hidden");
+  }
+
+  // Partial dataset warning real-time watcher
+  if (data) {
+    const currentRows = data
+      .split(/[\t\n\r]+/)
+      .map((v) => v.trim())
+      .filter((v) => v.length > 0).length;
+    if (currentRows < 34 && partialWarning) {
+      if (partialWarningText) {
+        partialWarningText.innerText = `Partial dataset detected: only ${currentRows}/34 KPIs present. Rest will default to 0.`;
+      }
+      partialWarning.classList.remove("hidden");
+    } else {
+      if (partialWarning) partialWarning.classList.add("hidden");
+    }
+  } else {
+    if (partialWarning) partialWarning.classList.add("hidden");
+  }
+
+  // 2. Button Logic: Require data to enable "Add to Dashboard Preview"
+  if (isFiltersSelected && data) {
     // True if the version was pulled from the backend originally
     const isExistingBackendVersion =
       STUDIO_GAMES[game] &&
@@ -2743,6 +3241,7 @@ window.onload = () => {
 function initNavSwitcher() {
   const list = document.getElementById("nav-game-list");
   list.innerHTML = Object.keys(STUDIO_GAMES)
+    .sort((a, b) => a.localeCompare(b))
     .map((key) => {
       const data = STUDIO_GAMES[key];
       const isSelected = baseSelection.game === key;
@@ -2783,6 +3282,15 @@ function filterSlotGames(index) {
     item.style.display = isMatch ? "flex" : "none";
   });
 }
+function syncDropdownBackdrop() {
+  const backdrop = document.getElementById("dropdown-global-backdrop");
+  if (!backdrop) return;
+  const anyOpen = Array.from(
+    document.querySelectorAll(".dropdown-content, .slot-dropdown"),
+  ).some((d) => !d.classList.contains("hidden"));
+  if (anyOpen) backdrop.classList.remove("hidden");
+  else backdrop.classList.add("hidden");
+}
 
 function toggleDropdown(id) {
   const dropdown = document.getElementById(id);
@@ -2812,6 +3320,7 @@ function toggleDropdown(id) {
       setTimeout(() => document.getElementById("nav-search").focus(), 30);
     }
   }
+  syncDropdownBackdrop();
 }
 function getBenchmarkTagsHTML(gameName, version) {
   if (!BENCHMARK_MAP[gameName]) return "";
@@ -2826,36 +3335,17 @@ function getBenchmarkTagsHTML(gameName, version) {
   return "";
 }
 
-async function processBenchmarks(gameName) {
+// Pure calculation logic
+function calculateBenchmarks(gameName) {
   const versions = metadata.versions[gameName] || [];
-  if (versions.length === 0) return;
-
-  const platform = STUDIO_GAMES[gameName]?.platform || "android";
-  const query = [
-    { game: gameName, day: "D0", versions: versions, platform },
-    { game: gameName, day: "D7", versions: versions, platform },
-    { game: gameName, day: "D30", versions: versions, platform },
-  ];
-
-  try {
-    // 1. Silent Background Fetch for all versions of this game
-    const result = await fetchGameVersionKpiData(query);
-    await addServerDataToMockDatabase(result);
-  } catch (e) {
-    console.warn("Silent benchmark fetch failed", e);
-  }
-
-  // 2. Calculate Benchmark Winners (Index 12 is AAPU)
   BENCHMARK_MAP[gameName] = { D0: null, D7: null, D30: null };
 
   ["D0", "D7", "D30"].forEach((day) => {
     let maxAapu = -1;
     let bestVersion = null;
 
-    // Check MOCK_DATABASE to include both server data and freshly injected live-test data
     const allPossibleVersions = new Set([...versions]);
     Object.keys(MOCK_DATABASE).forEach((key) => {
-      // Safe parsing to support game names that might contain underscores
       const parts = key.split("_");
       if (parts.length >= 3) {
         const d = parts.pop();
@@ -2872,17 +3362,22 @@ async function processBenchmarks(gameName) {
         if (aapu > maxAapu) {
           maxAapu = aapu;
           bestVersion = v;
+        } else if (aapu === maxAapu && maxAapu !== -1) {
+          const currentLvl50 = data[2] !== undefined ? parseFloat(data[2]) : 0;
+          const bestData = MOCK_DATABASE[`${gameName}_${bestVersion}_${day}`];
+          const bestLvl50 =
+            bestData && bestData[2] !== undefined ? parseFloat(bestData[2]) : 0;
+          if (currentLvl50 > bestLvl50) bestVersion = v;
         }
       }
     });
     BENCHMARK_MAP[gameName][day] = bestVersion;
   });
 
-  // 3. Trigger Dropdown UI Refreshes if they belong to this game
+  // UI Syncing
   if (baseSelection.game === gameName) {
     const queryStr = document.getElementById("nav-version-search")?.value || "";
     initVersionSwitcher(gameName, queryStr);
-    // Live update the selected text in case a crown arrived from backend
     if (baseSelection.version) {
       const tags = getBenchmarkTagsHTML(
         gameName,
@@ -2899,7 +3394,6 @@ async function processBenchmarks(gameName) {
       const queryStr =
         document.getElementById(`slot-v-search-${index}`)?.value || "";
       updateSlotVersionUI(index, queryStr);
-      // Live update the specific slot text without collapsing the dropdown
       if (slot.version) {
         const tags = getBenchmarkTagsHTML(gameName, slot.version).replace(
           "ml-auto",
@@ -2910,6 +3404,35 @@ async function processBenchmarks(gameName) {
       }
     }
   });
+}
+
+async function processBenchmarks(gameName) {
+  const versions = metadata.versions[gameName] || [];
+  if (versions.length === 0) return;
+
+  const platform = STUDIO_GAMES[gameName]?.platform || "android";
+  const actualGameName = STUDIO_GAMES[gameName]?.name || gameName;
+
+  // Check if we have data cached for this game already
+  const hasData = versions.some((v) =>
+    ["D0", "D7", "D30"].some((d) => MOCK_DATABASE[`${gameName}_${v}_${d}`]),
+  );
+
+  if (!hasData) {
+    const query = [
+      { game: actualGameName, day: "D0", versions: versions, platform },
+      { game: actualGameName, day: "D7", versions: versions, platform },
+      { game: actualGameName, day: "D30", versions: versions, platform },
+    ];
+    try {
+      const result = await fetchGameVersionKpiData(query);
+      await addServerDataToMockDatabase(result);
+    } catch (e) {
+      console.warn("Silent benchmark fetch failed", e);
+    }
+  }
+
+  calculateBenchmarks(gameName);
 }
 function initDaySwitcher(gameName, version) {
   const list = document.getElementById("nav-day-list");
@@ -2931,12 +3454,18 @@ function initDaySwitcher(gameName, version) {
 
   let daysToShow = defaultDays;
 
-  if (!isBackendVersion) {
-    // It's a TEMP game/version: Only show what has been manually injected
-    const availableDays = defaultDays.filter(
-      (d) => MOCK_DATABASE[`${gameName}_${version}_${d}`],
-    );
-    if (availableDays.length > 0) daysToShow = availableDays;
+  // Aggressively verify actual data presence in the cache, ignoring standard assumptions
+  const availableDays = defaultDays.filter(
+    (d) => MOCK_DATABASE[`${gameName}_${version}_${d}`],
+  );
+
+  if (availableDays.length > 0) {
+    daysToShow = availableDays;
+  } else if (!isBackendVersion) {
+    daysToShow = [];
+  } else if (isBackendVersion && availableDays.length === 0) {
+    // Failsafe override in case the silent API fetch is severely lagging
+    daysToShow = defaultDays;
   }
 
   list.innerHTML = daysToShow
@@ -3067,6 +3596,15 @@ function clearDashboard() {
 window.addEventListener("click", (e) => {
   const target = e.target;
 
+  // Immediately suppress idle close tooltip on click action
+  const tooltip = document.getElementById("cursor-idle-tooltip");
+  if (tooltip) {
+    clearTimeout(cursorIdleTimeout);
+    cursorIdleTimeout = null;
+    isTooltipActive = false;
+    tooltip.classList.add("hidden");
+  }
+
   // 1. Close Modals on Backdrop Click
   if (
     target.id &&
@@ -3098,5 +3636,93 @@ window.addEventListener("click", (e) => {
         btn.classList.remove("bg-slate-100", "border-blue-300");
         btn.classList.add("bg-white", "border-slate-200");
       });
+  }
+  setTimeout(syncDropdownBackdrop, 20);
+});
+const EngineLoader = {
+  activeTimer: null,
+  startTime: 0,
+  show: function (callback) {
+    const loader = document.getElementById("dashboard-loader");
+    if (!loader) {
+      if (callback) callback();
+      return;
+    }
+    loader.classList.remove("hidden");
+    // Trigger reflow to enforce CSS transition
+    void loader.offsetWidth;
+    loader.classList.remove("opacity-0");
+    this.startTime = Date.now();
+
+    // Yield exactly 50ms to the browser's paint thread.
+    // This workaround ensures the DOM visually renders the loader
+    // before heavy array manipulation locks up the main thread.
+    setTimeout(() => {
+      if (callback) callback();
+    }, 50);
+  },
+  hide: function () {
+    const elapsed = Date.now() - this.startTime;
+    const minDisplayTime = 400; // Hard-stop at 400ms: enough to look deliberate, too short to annoy.
+    const remainingTime = Math.max(0, minDisplayTime - elapsed);
+
+    clearTimeout(this.activeTimer);
+    this.activeTimer = setTimeout(() => {
+      const loader = document.getElementById("dashboard-loader");
+      if (loader) {
+        loader.classList.add("opacity-0");
+        setTimeout(() => loader.classList.add("hidden"), 300); // Wait for fade out
+      }
+    }, remainingTime);
+  },
+};
+let cursorIdleTimeout = null;
+let isTooltipActive = false;
+
+window.addEventListener("mousemove", (e) => {
+  const tooltip = document.getElementById("cursor-idle-tooltip");
+  if (!tooltip) return;
+
+  const t = e.target;
+  const isWhite = t.classList.contains("close-backdrop-white");
+  const isDark =
+    t.classList.contains("close-backdrop-dark") ||
+    t.id === "dropdown-global-backdrop";
+
+  if (isWhite || isDark) {
+    tooltip.style.left = e.clientX + "px";
+    tooltip.style.top = e.clientY + 12 + "px";
+    tooltip.style.transform = "translateX(-50%)";
+
+    tooltip.className =
+      "fixed pointer-events-none z-[300] text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-md text-center " +
+      (isTooltipActive ? "" : "hidden ") +
+      (isWhite
+        ? "bg-slate-950 text-red-500"
+        : "bg-white text-red-500 border border-slate-200");
+
+    if (isTooltipActive) return;
+
+    if (!cursorIdleTimeout) {
+      cursorIdleTimeout = setTimeout(() => {
+        tooltip.classList.remove("hidden");
+        isTooltipActive = true;
+      }, 1500);
+    }
+  } else {
+    clearTimeout(cursorIdleTimeout);
+    cursorIdleTimeout = null;
+    isTooltipActive = false;
+    tooltip.classList.add("hidden");
+  }
+});
+
+document.addEventListener("mouseleave", () => {
+  const tooltip = document.getElementById("cursor-idle-tooltip");
+  if (tooltip) {
+    clearTimeout(cursorIdleTimeout);
+    cursorIdleTimeout = null;
+    isTooltipActive = false;
+    tooltip.classList.add("hidden");
   }
 });

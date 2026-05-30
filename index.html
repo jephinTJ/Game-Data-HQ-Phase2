@@ -12,9 +12,23 @@
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    .close-backdrop-white {
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="white" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M11.854 4.146a.5.5 0 0 1 0 .708L8.707 8l3.147 3.146a.5.5 0 0 1-.708.708L8 8.707l-3.146 3.147a.5.5 0 0 1-.708-.708L7.293 8 4.146 4.854a.5.5 0 1 1 .708-.708L8 7.293l3.146-3.147a.5.5 0 0 1 .708 0z"/></svg>') 16 16, auto !important;
+    }
+    .close-backdrop-dark,
+    #dropdown-global-backdrop {
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="%23475569" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M11.854 4.146a.5.5 0 0 1 0 .708L8.707 8l3.147 3.146a.5.5 0 0 1-.708.708L8 8.707l-3.146 3.147a.5.5 0 0 1-.708-.708L7.293 8 4.146 4.854a.5.5 0 1 1 .708-.708L8 7.293l3.146-3.147a.5.5 0 0 1 .708 0z"/></svg>') 16 16, auto !important;
+    }
+    .close-backdrop-white > *,
+    .close-backdrop-dark > * {
+      cursor: default !important;
+    }
+  </style>
 </head>
 
 <body class="min-h-screen antialiased">
+  <div id="dropdown-global-backdrop" class="fixed inset-0 z-[105] hidden close-backdrop-cursor"></div>
   <nav
     class="bg-white border-b border-slate-200 sticky top-0 z-[130] px-8 flex justify-between items-center shadow-sm h-[74px]">
     <div class="flex items-center gap-4 w-[380px] shrink-0">
@@ -64,7 +78,7 @@
             class="flex items-center gap-3 bg-white border border-slate-200/60 px-5 py-2.5 rounded-2xl hover:border-blue-500 hover:shadow-lg hover:shadow-blue-50/40 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:hover:border-slate-200/60">
             <div class="text-left">
               <p class="text-[9px] font-black text-slate-400 uppercase tracking-wider leading-none mb-1">
-                Active Version
+                Available Versions
               </p>
               <div class="flex items-center gap-2">
                 <span id="nav-current-version" class="text-xs font-black text-slate-700 tracking-tight">None Selected</span>
@@ -155,7 +169,7 @@ border border-slate-100 rounded-[2.5rem] shadow-[0_30px_100px_-20px_rgba(0,0,0,0
 
     <div class="flex items-center gap-4 w-[380px] justify-end shrink-0">
       <div id="single-mode-actions" class="flex items-center gap-4" >
-        <button onclick="document.getElementById('upload-modal').classList.remove('hidden')"
+        <button onclick="openUploadModal()"
           class="text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-blue-600 transition-colors flex items-center gap-2 whitespace-nowrap">
           <i class="fas fa-plus-circle text-xs"></i> Test KPI Data
         </button>
@@ -189,8 +203,8 @@ border border-slate-100 rounded-[2.5rem] shadow-[0_30px_100px_-20px_rgba(0,0,0,0
         <button onclick="switchTab('ads')" class="tab-btn" data-tab="ads" data-text="Revenue System">
           Revenue System
         </button>
-        <button onclick="switchTab('performance')" class="tab-btn" data-tab="performance" data-text="Performance">
-          Performance
+        <button onclick="switchTab('performance')" class="tab-btn" data-tab="performance" data-text="Engagement">
+          Engagement
         </button>
         <button onclick="switchTab('retention')" class="tab-btn" data-tab="retention" data-text="Retention">
           Retention
@@ -234,9 +248,53 @@ border border-slate-100 rounded-[2.5rem] shadow-[0_30px_100px_-20px_rgba(0,0,0,0
       </div>
     </section>
   </main>
+  <div id="dashboard-loader" class="hidden fixed inset-0 z-[250] flex items-center justify-center bg-slate-50/70 backdrop-blur-md transition-opacity duration-300 opacity-0">
+    <div class="flex flex-col items-center gap-5">
+      <div class="relative flex h-14 w-14 items-center justify-center">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-500 opacity-20"></span>
+        <svg class="animate-spin h-10 w-10 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+      </div>
+      <span class="text-[10px] font-black uppercase tracking-widest text-slate-600 animate-pulse bg-white/80 px-4 py-1.5 rounded-full shadow-sm border border-slate-200">Recompiling Engine...</span>
+    </div>
+  </div>
+  <div id="dp1-modal" class="hidden fixed inset-0 z-[190] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm close-backdrop-white">
+    <div class="bg-white w-full max-w-md p-8 rounded-[2rem] shadow-2xl relative">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h3 class="text-xl font-bold tracking-tight text-slate-900">Upload DP1 Files</h3>
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Python Pipeline V2</p>
+        </div>
+        <button onclick="document.getElementById('dp1-modal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div id="dp1-dropzone" 
+        ondragover="event.preventDefault()" 
+        ondrop="event.preventDefault(); handleDp1Files(event.dataTransfer.files)"
+        class="border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center hover:bg-blue-50/50 hover:border-blue-300 transition-all cursor-pointer mb-6 relative group">
+        <input type="file" id="dp1-file-input" multiple accept=".csv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="handleDp1Files(this.files)">
+        <div class="w-12 h-12 bg-slate-100 text-slate-400 group-hover:bg-blue-100 group-hover:text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 text-xl transition-colors">
+          <i class="fas fa-cloud-upload-alt"></i>
+        </div>
+        <p class="text-sm font-bold text-slate-700">Drag & drop files or <span class="text-blue-600">Browse</span></p>
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2">Requires Retention & Ad CSVs</p>
+      </div>
+
+      <div id="dp1-file-list" class="space-y-2 mb-6 empty:hidden"></div>
+
+      <button id="dp1-process-btn" onclick="processDp1Files()" disabled
+        class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold uppercase tracking-widest transition-all shadow-lg shadow-slate-900/20 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed disabled:shadow-none hover:bg-blue-600 hover:shadow-blue-600/20">
+        Calculate & Inject
+      </button>
+    </div>
+  </div>
 
   <div id="upload-modal"
-    class="hidden fixed inset-0 z-[160] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-sm">
+    class="hidden fixed inset-0 z-[160] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-sm close-backdrop-white">
     <div class="bg-white w-full max-w-xl p-10 rounded-[2rem] shadow-2xl relative">
       <button onclick="
             document.getElementById('upload-modal').classList.add('hidden')
@@ -246,9 +304,17 @@ border border-slate-100 rounded-[2.5rem] shadow-[0_30px_100px_-20px_rgba(0,0,0,0
 
       <div class="text-center mb-8">
         <h2 class="text-2xl font-bold mb-2">Live Test Metrics</h2>
-        <p class="text-slate-500 text-sm">
-          Paste the KPI data from your processing pipeline script to refresh the engine.
+        <p class="text-slate-500 text-sm mb-4">
+          Paste your data or auto-generate DP1 metrics directly from raw files.
         </p>
+        <div class="flex justify-center gap-4">
+          <a href="dataHQ_template.xlsx" download="dataHQ_template.xlsx" class="flex-1 max-w-[200px] flex justify-center items-center gap-2 text-[10px] font-black uppercase tracking-wider text-slate-600 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 py-3 rounded-xl transition-all shadow-sm border border-transparent">
+            <i class="fas fa-file-excel text-sm"></i> Blank Template
+          </a>
+          <button onclick="openDp1Modal()" class="flex-1 max-w-[200px] flex justify-center items-center gap-2 text-[10px] font-black uppercase tracking-wider text-blue-600 hover:text-white bg-blue-50 hover:bg-blue-600 py-3 rounded-xl transition-all shadow-sm border border-blue-100 hover:border-blue-600">
+            <i class="fas fa-magic text-sm"></i> Generate DP1
+          </button>
+        </div>
       </div>
 
       <div class="grid grid-cols-3 gap-4 mb-8">
@@ -274,6 +340,11 @@ border border-slate-100 rounded-[2.5rem] shadow-[0_30px_100px_-20px_rgba(0,0,0,0
         <span>Data already exists for this selection; preview will temporarily override it.</span>
       </div>
 
+      <div id="partial-kpi-warning" class="hidden flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-700 p-3 rounded-xl mb-4 text-xs font-bold text-left shadow-sm">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span id="partial-kpi-warning-text">Partial dataset detected. Missing parameters will automatically default to 0.</span>
+      </div>
+
       <div class="tooltip-container">
         <button id="inject-btn" onclick="previewData()" disabled
           class="w-full bg-slate-200 text-slate-400 py-4 rounded-xl font-bold uppercase tracking-widest transition-all">
@@ -284,7 +355,7 @@ border border-slate-100 rounded-[2.5rem] shadow-[0_30px_100px_-20px_rgba(0,0,0,0
     </div>
   </div>
   <div id="input-modal"
-    class="hidden fixed inset-0 z-[180] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm">
+    class="hidden fixed inset-0 z-[180] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm close-backdrop-white">
     <div class="bg-white w-full max-w-sm p-8 rounded-[2rem] shadow-2xl relative">
       <h3 id="input-modal-title" class="text-xl font-bold mb-2">
         Add New Game
@@ -332,7 +403,7 @@ border border-slate-100 rounded-[2.5rem] shadow-[0_30px_100px_-20px_rgba(0,0,0,0
     </div>
   </div>
   <div id="inject-success-modal"
-    class="hidden fixed inset-0 z-[200] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm">
+    class="hidden fixed inset-0 z-[200] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm close-backdrop-white">
     <div class="bg-white w-full max-w-sm p-12 rounded-[2.5rem] shadow-2xl text-center">
       <div
         class="w-24 h-24 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-8 text-5xl animate-success-stretched">
@@ -345,7 +416,7 @@ border border-slate-100 rounded-[2.5rem] shadow-[0_30px_100px_-20px_rgba(0,0,0,0
   </div>
 
   <div id="selection-modal"
-    class="hidden fixed inset-0 z-[170] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm">
+    class="hidden fixed inset-0 z-[170] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm close-backdrop-white">
     <div class="bg-white w-full max-w-sm p-8 rounded-[2rem] shadow-2xl flex flex-col max-h-[80vh]">
       <div class="flex justify-between items-center mb-6">
         <h3 id="selection-title" class="text-xl font-bold">Select Game</h3>
@@ -363,7 +434,7 @@ border border-slate-100 rounded-[2.5rem] shadow-[0_30px_100px_-20px_rgba(0,0,0,0
     </div>
   </div>
   <div id="confirm-modal"
-    class="hidden fixed inset-0 z-[160] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm">
+    class="hidden fixed inset-0 z-[160] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm close-backdrop-dark">
     <div class="bg-white w-full max-w-sm p-8 rounded-[2rem] shadow-2xl text-center">
       <div
         class="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl">
@@ -390,7 +461,7 @@ border border-slate-100 rounded-[2.5rem] shadow-[0_30px_100px_-20px_rgba(0,0,0,0
   </div>
 
   <div id="success-modal"
-    class="hidden fixed inset-0 z-[200] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm">
+    class="hidden fixed inset-0 z-[200] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm close-backdrop-dark">
     <div class="bg-white w-full max-w-sm p-10 rounded-[2.5rem] shadow-2xl text-center">
       <div
         class="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl animate-success">
@@ -416,7 +487,7 @@ border border-slate-100 rounded-[2.5rem] shadow-[0_30px_100px_-20px_rgba(0,0,0,0
 
   <!-- Error Modal -->
   <div id="error-modal"
-    class="hidden fixed inset-0 z-[200] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm">
+    class="hidden fixed inset-0 z-[200] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm close-backdrop-dark">
     <div class="bg-white w-full max-w-sm p-10 rounded-[2.5rem] shadow-2xl text-center">
       <div
         class="w-20 h-20 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl animate-success">
@@ -440,7 +511,7 @@ border border-slate-100 rounded-[2.5rem] shadow-[0_30px_100px_-20px_rgba(0,0,0,0
   </div>
 
 
-
+  <div id="cursor-idle-tooltip" class="fixed pointer-events-none hidden z-[300] text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-md text-center">close</div>
   <script src="utils.js"></script>
   <script src="script.js"></script>
 </body>
