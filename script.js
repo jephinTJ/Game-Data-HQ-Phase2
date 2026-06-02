@@ -1793,6 +1793,7 @@ function updateDashboardUI(data, compLayers = null) {
      <div class="premium-card p-8">
        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
          <div><h4 class="text-lg font-bold text-slate-800" id="perf-chart-title">Friction Drop Analysis</h4><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Identifying Level Progression Bottlenecks</p></div>
+         <div id="perf-legend-container" class="flex items-center justify-center"></div>
          <div class="flex items-center gap-4">
            <div class="flex bg-slate-100 p-1 rounded-xl gap-1">
              <button onclick="togglePerformanceMode('impact')" id="btn-perf-impact" class="px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${performanceMode === "impact" ? "bg-white shadow-sm text-blue-600" : "text-slate-500 hover:text-slate-700"}">Friction Drop</button>
@@ -1804,7 +1805,6 @@ function updateDashboardUI(data, compLayers = null) {
           </div>
         </div>
       </div>
-      <div id="perf-legend-container" class="mb-8"></div>
       <div class="h-[380px] chart-container-stable"><canvas id="frictionChart"></canvas></div>
     </div>`;
 
@@ -1961,7 +1961,7 @@ function updateDashboardUI(data, compLayers = null) {
       color: "emerald",
     },
     {
-      label: "User Ad Failure Rate",
+      label: "IS User Ad Failure Rate",
       val: safePct(data[25]),
       rawVal: data[25],
       index: 25,
@@ -1970,7 +1970,7 @@ function updateDashboardUI(data, compLayers = null) {
       invertDelta: true,
     },
     {
-      label: "Ad Request Failure %",
+      label: "IS Request Failure %",
       val: safePct(data[26]),
       rawVal: data[26],
       index: 26,
@@ -2110,13 +2110,13 @@ function renderDatasetTable() {
         { label: "Return On Ad Spend", idx: 27, fmt: formatPct },
         { label: "Avg Ad per user", idx: 12, fmt: formatDec },
         {
-          label: "User Ad Failure Rate",
+          label: "IS User Ad Failure Rate",
           idx: 25,
           fmt: formatPct,
           invert: true,
         },
         {
-          label: "Ad Request Failure %",
+          label: "IS Request Failure %",
           idx: 26,
           fmt: formatPct,
           invert: true,
@@ -2172,14 +2172,11 @@ function renderDatasetTable() {
                   isNaN(compRaw)
                 ) {
                   return `
-                    <div class="flex-1 flex justify-center items-center px-1 border-l border-slate-200/60">
-                      <div class="relative w-full max-w-[80px] h-[32px] flex justify-center items-center rounded-lg transition-all duration-200 hover:bg-slate-100 hover:shadow-inner hover:scale-95 cursor-default group/cell">
-                        <span class="text-[11px] font-bold text-slate-700 group-hover/cell:text-slate-900 group-hover/cell:font-black transition-all tabular-nums">${compVal}</span>
-                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 opacity-0 group-hover/cell:opacity-100 transition-all duration-200 pointer-events-none z-[100] transform translate-y-2 group-hover/cell:translate-y-0 flex flex-col items-center drop-shadow-lg">
-                           <div class="px-3 py-1.5 rounded-xl text-[12px] font-black text-white bg-slate-500 whitespace-nowrap tracking-tight leading-none shadow-sm">—</div>
-                        </div>
-                      </div>
-                    </div>`;
+                <div class="flex-1 flex justify-center items-center px-1 border-l border-slate-200/60">
+                  <div class="relative w-full max-w-[80px] h-[32px] flex justify-center items-center rounded-lg transition-all duration-200 hover:bg-slate-100 hover:shadow-inner hover:scale-95 cursor-default group/cell">
+                    <span class="text-xs font-bold text-slate-700 group-hover/cell:text-slate-900 group-hover/cell:font-black transition-all">${compVal}</span>
+                  </div>
+                </div>`;
                 }
 
                 const isAbs = [
@@ -2371,7 +2368,7 @@ function renderRetentionChart() {
   // Standardized line and fill color mappings matching the comparison ecosystem metrics
   const layerColors = [
     { hex: "#f59e0b", rgb: "245, 158, 11" }, // Layer A
-    { hex: "#83a95c", rgb: "131, 169, 92" }, // Layer B
+    { hex: "#3b82f6", rgb: "59, 130, 246" }, // Layer B
     { hex: "#944e6c", rgb: "148, 78, 108" }, // Layer C
     { hex: "#433d3c", rgb: "67, 61, 60" }, // Layer D
   ];
@@ -2765,7 +2762,7 @@ function renderFrictionChart() {
   const legendContainer = document.getElementById("perf-legend-container");
 
   const labels = [
-    "Onboard-Lvl 20",
+    "Install-Lvl 20",
     "Lvl 20-50",
     "Lvl 50-70",
     "Lvl 70-100",
@@ -2779,6 +2776,8 @@ function renderFrictionChart() {
 
   const calcData = (rawData) => {
     const reach = rawData.slice(14, 20);
+    const lvl20Reach =
+      typeof rawData[1] === "number" && !isNaN(rawData[1]) ? rawData[1] : null;
 
     const getDrop = (r1, r2) => {
       if (
@@ -2793,7 +2792,7 @@ function renderFrictionChart() {
     };
 
     const safeFrictionDrop = [
-      typeof reach[0] === "number" && !isNaN(reach[0]) ? reach[0] : null,
+      lvl20Reach !== null ? 100 - lvl20Reach : null,
       getDrop(reach[0], reach[1]),
       getDrop(reach[1], reach[2]),
       getDrop(reach[2], reach[3]),
@@ -2801,9 +2800,12 @@ function renderFrictionChart() {
       getDrop(reach[4], reach[5]),
     ];
 
-    const piData = safeFrictionDrop.map((val, i) =>
-      val === null ? null : Math.pow(Math.max(0, val) / 100, 1 / gaps[i]),
-    );
+    const piData = safeFrictionDrop.map((val, i) => {
+      if (val === null) return null;
+      const blockSurvivalFraction =
+        i === 0 ? lvl20Reach / 100 : (100 - val) / 100;
+      return Math.pow(Math.max(0, blockSurvivalFraction), 1 / gaps[i]);
+    });
     return { frictionDrop: safeFrictionDrop, piData };
   };
 
@@ -2849,16 +2851,16 @@ function renderFrictionChart() {
 
   infoContent.innerHTML =
     performanceMode === "impact"
-      ? `<p class="text-rose-400 font-black uppercase tracking-widest text-[9px] mb-2">Friction Drop</p><p class="text-slate-300">Shows exactly where the highest number of players are leaving the game.</p>`
-      : `<p class="text-emerald-400 font-black uppercase tracking-widest text-[9px] mb-2">Group Performance</p><p class="text-slate-300">Highlights which level groups are actually the most difficult for players.</p>`;
+      ? `<p class="text-rose-400 font-black uppercase tracking-widest text-[9px] mb-2">Friction Drop</p><p class="text-slate-300">Shows the total percentage of players who quit inside this block of levels out of everyone who started it. Higher bars mean a bigger player leak.</p>`
+      : `<p class="text-emerald-400 font-black uppercase tracking-widest text-[9px] mb-2">Group Performance</p><p class="text-slate-300">Shows the average survival rate of a single level inside this block, revealing the true level difficulty regardless of how long or short the block is.</p> `;
 
   legendContainer.innerHTML =
     performanceMode === "efficiency"
       ? `
-    <div class="flex items-center gap-8 text-[9px] font-black uppercase tracking-widest text-slate-400 border-b border-slate-50 pb-4">
-      <div class="flex items-center gap-2.5"><div class="w-2.5 h-2.5 rounded bg-[#35d05e]"></div> Best</div>
-      <div class="flex items-center gap-2.5"><div class="w-2.5 h-2.5 rounded bg-[#98a6ae]"></div> Moderate</div>
-      <div class="flex items-center gap-2.5"><div class="w-2.5 h-2.5 rounded bg-[#ff3f42]"></div> Worst</div>
+    <div class="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest text-slate-400">
+      <div class="flex items-center gap-2"><div class="w-2.5 h-2.5 rounded bg-[#35d05e]"></div> Best</div>
+      <div class="flex items-center gap-2"><div class="w-2.5 h-2.5 rounded bg-[#98a6ae]"></div> Moderate</div>
+      <div class="flex items-center gap-2"><div class="w-2.5 h-2.5 rounded bg-[#ff3f42]"></div> Worst</div>
     </div>`
       : "";
 
@@ -2902,7 +2904,7 @@ function renderFrictionChart() {
     }
   } else {
     // High-contrast comparative theme array syncing with retention and overview palette systems
-    const highContrastPalette = ["#f59e0b", "#83A95C", "#944E6C", "#433D3C"];
+    const highContrastPalette = ["#f59e0b", "#3b82f6", "#944E6C", "#433D3C"];
 
     tooltipLabel =
       performanceMode === "impact" ? "Friction Drop" : "Efficiency Index";
@@ -2920,8 +2922,8 @@ function renderFrictionChart() {
           : getEfficiencyColors(baseCalc.piData, 0),
       borderRadius: 6,
       borderWidth: 0,
+      barThickness: 55,
     });
-
     lastCompLayers.forEach((layer, i) => {
       const compCalc = calcData(layer.data);
       datasets.push({
@@ -2937,6 +2939,7 @@ function renderFrictionChart() {
             : getEfficiencyColors(compCalc.piData, i + 1),
         borderRadius: 6,
         borderWidth: 0,
+        barThickness: 55,
       });
     });
   }
@@ -3000,10 +3003,9 @@ function renderFrictionChart() {
           position: "top",
           align: "end",
           labels: {
-            usePointStyle: true,
-            boxWidth: 8,
-            font: { family: "Outfit", size: 10, weight: "bold" },
-            color: "#64748b",
+            boxWidth: performanceMode === "efficiency" ? 0 : 10,
+            usePointStyle: performanceMode !== "efficiency",
+            font: { family: "Outfit", size: 10, weight: "700" },
           },
         },
         tooltip: {
@@ -3048,7 +3050,6 @@ function renderFrictionChart() {
         x: {
           grid: { display: false },
           ticks: { font: { family: "Outfit", weight: "700", size: 11 } },
-          // Expand category and bar space usage to completely eliminate wide spacing gaps
           categoryPercentage: 0.85,
           barPercentage: 0.95,
         },
