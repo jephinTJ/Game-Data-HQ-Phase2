@@ -1022,9 +1022,9 @@ function validateInputModal() {
 
     let cleanVal = val.replace(/^(v|version)\s*/i, "");
 
-    if (/[^0-9.]/.test(cleanVal)) {
+    if (cleanVal.length > 15) {
       confirmBtn.disabled = true;
-      tooltip.innerText = "Use numerical values only";
+      tooltip.innerText = "Max 15 characters";
       return;
     }
 
@@ -1247,7 +1247,7 @@ function previewData() {
 
   if (row.length < 34) {
     while (row.length < 34) {
-      row.push(0);
+      row.push("NA");
     }
   }
 
@@ -3216,7 +3216,7 @@ function validateInjection() {
       .filter((v) => v.length > 0).length;
     if (currentRows < 34 && partialWarning) {
       if (partialWarningText) {
-        partialWarningText.innerText = `Partial dataset detected: only ${currentRows}/34 KPIs present. Rest will default to 0.`;
+        partialWarningText.innerText = `Partial dataset detected: only ${currentRows}/34 KPIs present. Rest will default to NA.`;
       }
       partialWarning.classList.remove("hidden");
     } else {
