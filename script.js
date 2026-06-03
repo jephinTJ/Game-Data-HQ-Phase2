@@ -1572,9 +1572,9 @@ async function processDp1Files() {
 }
 
 const formatTime = (seconds) => {
-  if (typeof seconds !== "number" || isNaN(seconds)) return "—";
+  if (typeof seconds !== "number" || isNaN(seconds)) return " ";
   const m = Math.floor(seconds / 60);
-  const s = Math.floor(seconds % 60);
+  const s = Math.round(seconds % 60);
   return `${m}m ${s}s`;
 };
 
