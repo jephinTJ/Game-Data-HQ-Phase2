@@ -707,15 +707,32 @@ function pickOption(type, value, context = "inject") {
       // Disable day button until version is selected
       document.getElementById("btn-base-day").disabled = true;
     } else if (type === "VERSION") {
+      const previousDay = state.day;
       state.version = value;
-      state.day = null; // Reset day when version changes
+
+      const defaultDays = ["D0", "D7", "D30"];
+      const isBackendV = STUDIO_GAMES[state.game]?.versions?.includes(value);
+      const availDays = defaultDays.filter(
+        (d) => MOCK_DATABASE[`${state.game}_${value}_${d}`],
+      );
+      const daysValid =
+        availDays.length > 0 ? availDays : isBackendV ? defaultDays : [];
+
+      if (previousDay && daysValid.includes(previousDay)) {
+        state.day = previousDay;
+        document.getElementById("nav-current-day").innerText =
+          previousDay.replace("D", "Day ");
+      } else {
+        state.day = null;
+        document.getElementById("nav-current-day").innerText = "Select Day";
+      }
+
       const tags = getBenchmarkTagsHTML(state.game, value).replace(
         "ml-auto",
         "",
       );
       document.getElementById("nav-current-version").innerHTML =
         `<span class="flex items-center gap-1.5">${value} ${tags}</span>`;
-      document.getElementById("nav-current-day").innerText = "Select Day";
       initDaySwitcher(state.game, value);
     } else if (type === "DAY") {
       state.day = value;
@@ -757,8 +774,19 @@ function pickOption(type, value, context = "inject") {
       state.version = null;
       state.day = null;
     } else if (type === "VERSION") {
+      const previousDay = state.day;
       state.version = value;
-      state.day = null; // Reset day when version changes
+
+      const defaultDays = ["D0", "D7", "D30"];
+      const isBackendV = STUDIO_GAMES[state.game]?.versions?.includes(value);
+      const availDays = defaultDays.filter(
+        (d) => MOCK_DATABASE[`${state.game}_${value}_${d}`],
+      );
+      const daysValid =
+        availDays.length > 0 ? availDays : isBackendV ? defaultDays : [];
+
+      state.day =
+        previousDay && daysValid.includes(previousDay) ? previousDay : null;
     } else {
       state.day = value;
     }
