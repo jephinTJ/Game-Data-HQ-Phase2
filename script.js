@@ -1623,7 +1623,7 @@ const generateCard = (c, i, customId = "") => `
   </div>`;
 
 const formatCValue = (val, idx) => {
-  if (typeof val !== "number" || isNaN(val)) return "—";
+  if (typeof val !== "number" || isNaN(val)) return "NA";
   if (idx === 0) return val.toLocaleString();
   if (
     idx === 27 ||
@@ -1823,13 +1823,13 @@ function updateDashboardUI(data, compLayers = null) {
   );
 
   const safeStr = (v) =>
-    typeof v !== "number" || isNaN(v) ? "—" : v.toLocaleString();
+    typeof v !== "number" || isNaN(v) ? "NA" : v.toLocaleString();
   const safePct = (v) =>
-    typeof v !== "number" || isNaN(v) ? "—" : v.toFixed(2) + "%";
+    typeof v !== "number" || isNaN(v) ? "NA" : v.toFixed(2) + "%";
   const safeDec = (v) =>
-    typeof v !== "number" || isNaN(v) ? "—" : v.toFixed(2);
+    typeof v !== "number" || isNaN(v) ? "NA" : v.toFixed(2);
   const safeDec3 = (v) =>
-    typeof v !== "number" || isNaN(v) ? "—" : v.toFixed(3);
+    typeof v !== "number" || isNaN(v) ? "NA" : v.toFixed(3);
 
   const overviewCards = [
     {
@@ -2032,13 +2032,13 @@ function renderDatasetTable() {
   if (!container) return;
 
   const formatNum = (val) =>
-    typeof val !== "number" || isNaN(val) ? "—" : val.toLocaleString();
+    typeof val !== "number" || isNaN(val) ? "NA" : val.toLocaleString();
   const formatPct = (val) =>
-    typeof val !== "number" || isNaN(val) ? "—" : val.toFixed(2) + "%";
+    typeof val !== "number" || isNaN(val) ? "NA" : val.toFixed(2) + "%";
   const formatDec = (val) =>
-    typeof val !== "number" || isNaN(val) ? "—" : val.toFixed(2);
+    typeof val !== "number" || isNaN(val) ? "NA" : val.toFixed(2);
   const formatDec3 = (val) =>
-    typeof val !== "number" || isNaN(val) ? "—" : val.toFixed(3);
+    typeof val !== "number" || isNaN(val) ? "NA" : val.toFixed(3);
 
   const tailwindColors = {
     blue: { hex: "#3b82f6", glass: "rgba(59, 130, 246, 0.08)" },
