@@ -1572,7 +1572,7 @@ async function processDp1Files() {
 }
 
 const formatTime = (seconds) => {
-  if (typeof seconds !== "number" || isNaN(seconds)) return " ";
+  if (typeof seconds !== "number" || isNaN(seconds)) return "NA";
   const m = Math.floor(seconds / 60);
   const s = Math.round(seconds % 60);
   return `${m}m ${s}s`;
@@ -2291,7 +2291,7 @@ function updateDynamicRetentionCard() {
         label: "Total Installs",
         val:
           typeof lastData[0] !== "number" || isNaN(lastData[0])
-            ? "—"
+            ? "NA"
             : lastData[0].toLocaleString(),
         rawVal: lastData[0],
         index: 0,
@@ -2302,7 +2302,7 @@ function updateDynamicRetentionCard() {
         label: "Onboarded Users",
         val:
           typeof lastData[13] !== "number" || isNaN(lastData[13])
-            ? "—"
+            ? "NA"
             : lastData[13].toLocaleString(),
         rawVal: lastData[13],
         index: 13,
