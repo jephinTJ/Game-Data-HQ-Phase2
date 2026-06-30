@@ -1989,7 +1989,7 @@ function updateDashboardUI(data, compLayers = null) {
       color: "emerald",
     },
     {
-      label: "IS User Ad Failure Rate",
+      label: "No-Ad Exposure Rate",
       val: safePct(data[25]),
       rawVal: data[25],
       index: 25,
@@ -1998,7 +1998,7 @@ function updateDashboardUI(data, compLayers = null) {
       invertDelta: true,
     },
     {
-      label: "IS Request Failure %",
+      label: "Interstitial Miss Rate",
       val: safePct(data[26]),
       rawVal: data[26],
       index: 26,
@@ -2138,13 +2138,13 @@ function renderDatasetTable() {
         { label: "Return On Ad Spend", idx: 27, fmt: formatPct },
         { label: "Avg Ad per user", idx: 12, fmt: formatDec },
         {
-          label: "IS User Ad Failure Rate",
+          label: "No-Ad Exposure Rate",
           idx: 25,
           fmt: formatPct,
           invert: true,
         },
         {
-          label: "IS Request Failure %",
+          label: "Interstitial Miss Rate",
           idx: 26,
           fmt: formatPct,
           invert: true,
