@@ -149,11 +149,31 @@ let compSelection = {
 };
 let currentTargetContext = "inject";
 let BENCHMARK_MAP = {};
+let isFirstCompareSwitch = true;
 
 function setDashboardMode(mode, isInstant = false) {
   localStorage.setItem("dashboardMode", mode);
   const isCompare = mode === "compare";
   dashboardMode = mode;
+
+  if (isCompare && isFirstCompareSwitch) {
+    if (baseSelection.game && baseSelection.version && baseSelection.day) {
+      selectionSlots[0] = {
+        game: baseSelection.game,
+        gameShortName: baseSelection.gameShortName,
+        platform: baseSelection.platform,
+        version: baseSelection.version,
+        day: baseSelection.day,
+        versionPage: 0,
+      };
+      setTimeout(() => {
+        const dropdown = document.getElementById("comp-engine-dropdown");
+        if (dropdown && dropdown.classList.contains("hidden"))
+          toggleDropdown("comp-engine-dropdown");
+      }, 300);
+    }
+    isFirstCompareSwitch = false;
+  }
 
   const els = {
     singleBtn: document.getElementById("mode-single"),
