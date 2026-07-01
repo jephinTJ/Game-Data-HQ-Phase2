@@ -156,6 +156,8 @@ function setDashboardMode(mode, isInstant = false) {
   const isCompare = mode === "compare";
   dashboardMode = mode;
 
+  // 1. Set Memory First (No Timers)
+  let shouldOpenDropdown = false;
   if (isCompare && isFirstCompareSwitch) {
     if (baseSelection.game && baseSelection.version && baseSelection.day) {
       selectionSlots[0] = {
@@ -166,11 +168,7 @@ function setDashboardMode(mode, isInstant = false) {
         day: baseSelection.day,
         versionPage: 0,
       };
-      setTimeout(() => {
-        const dropdown = document.getElementById("comp-engine-dropdown");
-        if (dropdown && dropdown.classList.contains("hidden"))
-          toggleDropdown("comp-engine-dropdown");
-      }, 300);
+      shouldOpenDropdown = true;
     }
     isFirstCompareSwitch = false;
   }
@@ -213,23 +211,19 @@ function setDashboardMode(mode, isInstant = false) {
     return;
   }
 
-  // 1. Toggle Static UI Elements
-  els.titlePro.style.transition = ""; // Restore transition
+  els.titlePro.style.transition = ""; 
   els.titlePro.classList.toggle("active-pro", isCompare);
   if (isCompare) els.gameHeader?.classList.add("hidden");
   else if (baseSelection.game) els.gameHeader?.classList.remove("hidden");
 
-  // Update Toggle Button Styles
   els.singleBtn.className = `px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${!isCompare ? "bg-white shadow-sm text-blue-600" : "text-slate-500 hover:text-slate-700"}`;
   els.compareBtn.className = `px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${isCompare ? "bg-white shadow-sm text-blue-600" : "text-slate-500 hover:text-slate-700"}`;
 
-  // 2. Handle Nav Transition Logic
   const showEl = isCompare ? els.compareNav : els.singleNav;
   const hideEl = isCompare ? els.singleNav : els.compareNav;
 
   hideEl.classList.remove("nav-control-fade");
   hideEl.classList.add("nav-control-exit");
-
   if (isCompare) els.singleActions?.classList.add("nav-control-exit");
 
   setTimeout(() => {
@@ -238,11 +232,7 @@ function setDashboardMode(mode, isInstant = false) {
 
     if (isCompare) {
       els.singleActions?.classList.add("hidden");
-      els.singleActions?.classList.remove(
-        "nav-control-exit",
-        "nav-control-fade",
-        "flex",
-      );
+      els.singleActions?.classList.remove("nav-control-exit", "nav-control-fade", "flex");
     } else {
       els.singleActions?.classList.remove("hidden", "nav-control-exit");
       els.singleActions?.classList.add("flex", "nav-control-fade");
@@ -251,8 +241,20 @@ function setDashboardMode(mode, isInstant = false) {
     showEl.classList.remove("hidden", "nav-control-exit");
     showEl.classList.add("flex", "nav-control-fade");
 
+    // 2. Render HTML First
     if (isCompare) renderCompSlots();
+    
     refreshDashboard2();
+
+    // 3. Trigger Popup ONLY after HTML is safely built
+    if (shouldOpenDropdown) {
+      requestAnimationFrame(() => {
+        const dropdown = document.getElementById('comp-engine-dropdown');
+        if (dropdown && dropdown.classList.contains('hidden')) {
+          toggleDropdown('comp-engine-dropdown');
+        }
+      });
+    }
   }, 250);
 }
 
